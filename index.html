@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <style>
+   body {
+  font-family: Arial, sans-serif;
+  background-color: #1a1d23;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#chat-container {
+  flex: 1;
+  width: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #1a1d23;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 10px 10px 0 0;
+}
+
+#chat-container div {
+  padding: 10px;
+  border-bottom: 1px solid #2d3138;
+  color: #fff;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+#chat-container div:hover {
+  transform: translateZ(10px);
+  background-color: #2d3138;
+}
+
+#input-container {
+  padding: 20px;
+  background-color: #1a1d23;
+  border-top: 1px solid #2d3138;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#user-input {
+  width: 70%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  background-color: #2d3138;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#send-btn {
+  width: 20%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background-color: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#send-btn:hover {
+  background-color: #3e8e41;
+}
+
+#chat-container::-webkit-scrollbar {
+  width: 10px;
+  background-color: #1a1d23;
+}
+
+#chat-container::-webkit-scrollbar-thumb {
+  background-color: #2d3138;
+  border-radius: 10px;
+}
+
+h1 {
+  color: #fff;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* Responsive design */
+@media only screen and (max-width: 600px) {
+  #user-input {
+    width: 60%;
+  }
+  #send-btn {
+    width: 30%;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  #user-input {
+    width: 55%;
+    padding: 10px;
+  }
+  #send-btn {
+    width: 35%;
+    padding: 10px;
+  }
+}
+
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Chatbot</h1>
+    <div id="chat-container"></div>
+    <div style="text-align: center;">
+        <input type="text" id="user-input" placeholder="Type a command...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+
+const commands = [
+  { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Why don't scientists trust atoms? Because they make up everything! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> ` },
+  { command: "about", response: "Switch 1.0 is a multipurpose online bot still in development with few inbuilt commands and integrated APIs. 🤖" },
+  { command: "hi", response: "How are you doing today 😊" },
+  { command: "what's up", response: "I'm good 👌" },
+  { command: "dev", response: "Created By Musa Abiodun 🤝 Switch ™ and other members of the class of H.A.P.E 🎓💻. We're passionate about innovation and building cool stuff! 🚀" },
+  { command: "info", response: "Provides information and entertainment through various commands. 📺" },
+  { command: "socials", response: "You can find us on social media platforms: Twitter, Instagram, Facebook. 📱" },
+  { command: "joke", response: "Why don't scientists trust atoms? Because they make up everything! 😂" },
+  { command: "quote", response: "\"Believe you can and you're halfway there.\" - Theodore Roosevelt 💡" },
+  { command: "quest1", response: "Explore the world of coding and discover new things. 🌐" },
+  { command: "quest2", response: "Learn a new programming language and build something amazing. 💻" },
+  { command: "update", response: "We're constantly updating and improving our chatbot. 🚀" },
+  { command: "theme", response: "Our theme is to provide a user-friendly and interactive experience. 🌈" },
+  { command: "reset", response: "Chatbot has been reset. 🔄" },
+  { command: "no.game", response: "No game available at the moment. 😔" },
+  { command: "ping", response: "Pong! 🏓" },
+    { command: "uptime", response: "Uptime: 24/7 ⏰" },
+  { command: "api", response: "Our API is used to provide various services and functionalities. 📈" },
+  {
+    command: "evaluate",
+    response: () => {
+      const score = Math.floor(Math.random() * 100) + 1;
+      const encouragingWords = [
+        "Keep going!",
+        "You're on the right track!",
+        "Excellent work!",
+        "Don't give up!",
+        "You're making progress!",
+        "Great effort!",
+        "Good job!",
+        "Stay motivated!",
+        "You're doing well!",
+        "Keep pushing forward!",
+      ];
+      const encouragingWord =
+        encouragingWords[Math.floor(Math.random() * encouragingWords.length)];
+      return `<p>Evaluation Score: ${score}/100</p><p>${encouragingWord}</p>`;
+    },
+  },
+];
+
+sendBtn.addEventListener("click", () => {
+  const userInputValue = userInput.value.trim();
+  if (userInputValue.startsWith("/calculate")) {
+    try {
+      const calculation = userInputValue.replace("/calculate ", "");
+      const result = eval(calculation);
+      const botMessage = document.createElement("div");
+      botMessage.innerHTML = `Bot: Result: ${result} 📊`;
+      chatContainer.appendChild(botMessage);
+    } catch (error) {
+      const errorMessage = document.createElement("div");
+      errorMessage.textContent = `Bot: Error: Invalid calculation 🤔`;
+      chatContainer.appendChild(errorMessage);
+    }
+  } else if (userInputValue.toLowerCase() === "/clear") {
+    chatContainer.innerHTML = "";
+  } else {
+    const commandName = userInputValue.substring(1).toLowerCase();
+    const command = commands.find((cmd) => cmd.command === commandName);
+    if (command) {
+      const botMessage = document.createElement("div");
+      botMessage.innerHTML = `Bot: <br>${typeof command.response === "function" ? command.response() : command.response}`;
+      chatContainer.appendChild(botMessage);
+    } else if (
+      userInputValue.toLowerCase().includes("hello") ||
+      userInputValue.toLowerCase().includes("hi") ||
+      userInputValue.toLowerCase().includes("hey")
+    ) {
+      const botMessage = document.createElement("div");
+      botMessage.innerHTML = `Bot: 😊`;
+      chatContainer.appendChild(botMessage);
+    } else {
+      const errorMessage = document.createElement("div");
+      errorMessage.textContent = `Bot: 😕`;
+      chatContainer.appendChild(errorMessage);
+    }
+  }
+  userInput.value = "";
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+});
+
+</script>
+</body>
+  </html>
