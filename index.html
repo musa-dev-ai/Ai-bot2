@@ -187,20 +187,117 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // --- Configuration for your private AI endpoint ---
-        // This is the endpoint you specified for the /ai command
+        // --- Configuration for your API endpoints ---
         const PRIVATE_API_ENDPOINT = "https://api.giftedtech.my.id/api/ai/openai"; 
+        const JOKE_API_ENDPOINT = "https://api.giftedtech.my.id/api/fun/jokes"; // Joke API Endpoint
         const YOUR_API_KEY = "gifted"; // Your API key
 
+        // Function to display bot messages
+        function displayBotMessage(message, isHTML = false) {
+            const botMessageDiv = document.createElement("div");
+            if (isHTML) {
+                botMessageDiv.innerHTML = `Bot: <br>${message}`;
+            } else {
+                botMessageDiv.textContent = `Bot: ${message}`;
+            }
+            chatContainer.appendChild(botMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        /**
+         * Safely calculates a mathematical expression.
+         * This function is a safer alternative to `eval()` but still executes code from a string.
+         * For production applications requiring robust and secure math parsing,
+         * consider using a dedicated math expression parsing library (e.g., math.js).
+         * @param {string} expression The mathematical expression to calculate.
+         * @returns {number} The result of the calculation.
+         * @throws {Error} If the expression contains invalid characters or cannot be evaluated.
+         */
+        function safeCalculate(expression) {
+            // Basic validation: allow only numbers, operators (+, -, *, /, ., parentheses), and spaces.
+            // This prevents injection of arbitrary JavaScript code.
+            if (!/^[0-9+\-*/.\s()]+$/.test(expression)) {
+                throw new Error('Invalid characters in calculation. Only numbers and basic operators are allowed.');
+            }
+
+            try {
+                // Using the Function constructor is safer than global eval() as it runs in its own scope.
+                // It still executes code from a string, so strict input validation is crucial.
+                return new Function('return ' + expression)();
+            } catch (e) {
+                // Catch any errors during evaluation (e.g., syntax errors)
+                throw new Error('Could not evaluate expression. Please check syntax.');
+            }
+        }
+
+        // Function to fetch a joke from the API
+        async function fetchJoke() {
+            const loadingMessageDiv = document.createElement("div");
+            loadingMessageDiv.innerHTML = `Bot: Fetching joke<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 😂`;
+            chatContainer.appendChild(loadingMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const url = `${JOKE_API_ENDPOINT}?apikey=${YOUR_API_KEY}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let jokeText;
+                if (typeof data.result === 'string') {
+                    jokeText = data.result;
+                } else if (typeof data.result === 'object' && data.result !== null) {
+                    // Attempt to find a 'joke' property within the result object
+                    if (data.result.joke) {
+                        jokeText = data.result.joke;
+                    } else if (data.result.setup && data.result.punchline) {
+                        // If it's a two-part joke, concatenate them
+                        jokeText = `${data.result.setup} -- ${data.result.punchline}`;
+                    } else {
+                        // Fallback: stringify the object if no specific joke property is found
+                        jokeText = `Joke API response 'result' is an object without a 'joke' or 'setup/punchline' property. Raw object: ${JSON.stringify(data.result)}`;
+                        console.warn("Joke API response 'result' property is an object without a 'joke' or 'setup/punchline' property. Displaying raw object:", data.result);
+                    }
+                } else {
+                    // Fallback for unexpected data.result format (e.g., null, undefined, or non-object/non-string)
+                    jokeText = "Sorry, I couldn't find a joke. The API response was unexpected or empty.";
+                    console.error("Joke API response has an unexpected format for 'result':", data);
+                }
+
+                // Remove loading message
+                if (chatContainer.contains(loadingMessageDiv)) {
+                    chatContainer.removeChild(loadingMessageDiv);
+                }
+
+                if (jokeText) {
+                    displayBotMessage(jokeText);
+                } else {
+                    displayBotMessage("Sorry, I couldn't find a joke. The API response was unexpected.");
+                    console.error("Joke API response missing 'result' property:", data);
+                }
+            } catch (error) {
+                // Remove loading message even on error
+                if (chatContainer.contains(loadingMessageDiv)) {
+                    chatContainer.removeChild(loadingMessageDiv);
+                }
+                console.error("Error fetching joke:", error);
+                displayBotMessage(`Sorry, I couldn't fetch a joke right now. ${error.message ? `Error: ${error.message}` : 'Please try again later.'} 😔`);
+            }
+        }
+
         const commands = [
-            { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Why don't scientists trust atoms? Because they make up everything! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> ` },
+            { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Fetches a random joke! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> ` },
             { command: "about", response: "Switch 1.0 is a multipurpose online bot still in development with few inbuilt commands and integrated APIs. 🤖" },
             { command: "hi", response: "How are you doing today 😊" },
             { command: "what's up", response: "I'm good 👌" },
             { command: "dev", response: "Created By Musa Abiodun 🤝 Switch ™ and other members of the class of H.A.P.E 🎓💻. We're passionate about innovation and building cool stuff! 🚀" },
             { command: "info", response: "Provides information and entertainment through various commands. 📺" },
             { command: "socials", response: "You can find us on social media platforms: Twitter, Instagram, Facebook. 📱" },
-            { command: "joke", response: "Why don't scientists trust atoms? Because they make up everything! 😂" },
+            // The /joke command now triggers the fetchJoke() function
             { command: "quote", response: "\"Believe you can and you're halfway there.\" - Theodore Roosevelt 💡" },
             { command: "quest1", response: "Explore the world of coding and discover new things. 🌐" },
             { command: "quest2", response: "Learn a new programming language and build something amazing. 💻" },
@@ -234,9 +331,9 @@
             },
         ];
 
-        sendBtn.addEventListener("click", async () => { // Added 'async' keyword here
+        sendBtn.addEventListener("click", async () => {
             const userInputValue = userInput.value.trim();
-            if (userInputValue === "") return; // Prevent sending empty messages
+            if (userInputValue === "") return;
 
             // Display user's message
             const userMessageDiv = document.createElement("div");
@@ -247,29 +344,27 @@
             userInput.value = "";
             chatContainer.scrollTop = chatContainer.scrollHeight;
 
-            // Check for built-in commands first
-            if (userInputValue.toLowerCase().startsWith("/calculate")) {
+            const lowerCaseInput = userInputValue.toLowerCase();
+
+            // Handle specific dynamic commands first
+            if (lowerCaseInput === "/joke") { // Handle /joke command dynamically
+                await fetchJoke(); 
+                return; // Stop further processing for this command
+            } else if (lowerCaseInput.startsWith("/calculate")) {
                 try {
                     const calculation = userInputValue.replace("/calculate ", "");
-                    const result = eval(calculation); // Be cautious with eval() in production, as it can be a security risk.
-                    const botMessage = document.createElement("div");
-                    botMessage.innerHTML = `Bot: Result: ${result} 📊`;
-                    chatContainer.appendChild(botMessage);
+                    const result = safeCalculate(calculation); // Use safeCalculate
+                    displayBotMessage(`Result: ${result} 📊`);
                 } catch (error) {
-                    const errorMessage = document.createElement("div");
-                    errorMessage.textContent = `Bot: Error: Invalid calculation 🤔`;
-                    chatContainer.appendChild(errorMessage);
+                    displayBotMessage(`Error: ${error.message} 🤔`);
                 }
-            } else if (userInputValue.toLowerCase() === "/clear") {
+            } else if (lowerCaseInput === "/clear") {
                 chatContainer.innerHTML = "";
-            } else if (userInputValue.toLowerCase().startsWith("/ai")) {
+            } else if (lowerCaseInput.startsWith("/ai")) {
                 // --- Handle /ai command for API call ---
                 const aiQuery = userInputValue.substring(3).trim(); // Extract query after "/ai "
                 if (aiQuery === "") {
-                    const botMessage = document.createElement("div");
-                    botMessage.textContent = `Bot: Please provide a question after /ai. For example: /ai What is JavaScript?`;
-                    chatContainer.appendChild(botMessage);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    displayBotMessage(`Please provide a question after /ai. For example: /ai What is JavaScript?`);
                     return;
                 }
 
@@ -281,6 +376,7 @@
 
                 try {
                     const encodedQuery = encodeURIComponent(aiQuery);
+                    // Using the PRIVATE_API_ENDPOINT for the /ai command
                     const url = `${PRIVATE_API_ENDPOINT}?apikey=${YOUR_API_KEY}&q=${encodedQuery}`;
 
                     const response = await fetch(url);
@@ -306,16 +402,18 @@
                         chatContainer.removeChild(thinkingMessageDiv);
                     }
 
-                    const botMessage = document.createElement("div");
-                    // Now specifically looking for 'data.result'
-                    const botAnswer = data.result || JSON.stringify(data); // Fallback to stringify entire data if 'result' is not found
-
-                    if (botAnswer) {
-                        botMessage.innerHTML = `Bot: ${botAnswer}`;
+                    let botAnswer;
+                    if (data.result !== undefined && data.result !== null) {
+                        // If data.result exists, ensure it's a string.
+                        // If it's an object, stringify it. Otherwise, use it directly.
+                        botAnswer = typeof data.result === 'object' ? JSON.stringify(data.result) : data.result;
                     } else {
-                        botMessage.innerHTML = `Bot: I received an empty or unreadable response from the AI.`;
+                        // If data.result is missing, stringify the entire data object for debugging
+                        botAnswer = `I received an empty or unreadable response from the AI. Raw response: ${JSON.stringify(data)}`;
+                        console.error("AI API response missing 'result' property or unexpected format:", data);
                     }
-                    chatContainer.appendChild(botMessage);
+                    
+                    displayBotMessage(botAnswer); // Always display the processed botAnswer
 
                 } catch (error) {
                     // Remove thinking message even on error
@@ -323,31 +421,484 @@
                         chatContainer.removeChild(thinkingMessageDiv);
                     }
                     console.error("Error fetching from private API:", error);
-                    const errorMessage = document.createElement("div");
-                    errorMessage.textContent = `Bot: Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`;
-                    chatContainer.appendChild(errorMessage);
+                    displayBotMessage(`Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`);
                 }
             } else {
                 // Handle other predefined commands
-                const commandName = userInputValue.substring(1).toLowerCase();
+                const commandName = lowerCaseInput.substring(1); // Remove '/' for command lookup
                 const command = commands.find((cmd) => cmd.command === commandName);
                 if (command) {
-                    const botMessage = document.createElement("div");
-                    botMessage.innerHTML = `Bot: <br>${typeof command.response === "function" ? command.response() : command.response}`;
-                    chatContainer.appendChild(botMessage);
+                    displayBotMessage(
+                        typeof command.response === "function" ? command.response() : command.response,
+                        true // Pass true to indicate HTML content for these static commands
+                    );
                 } else if (
-                    userInputValue.toLowerCase().includes("hello") ||
-                    userInputValue.toLowerCase().includes("hi") ||
-                    userInputValue.toLowerCase().includes("hey")
+                    lowerCaseInput.includes("hello") ||
+                    lowerCaseInput.includes("hi") ||
+                    lowerCaseInput.includes("hey")
                 ) {
-                    const botMessage = document.createElement("div");
-                    botMessage.innerHTML = `Bot: How are you doing today 😊`; // Changed to a specific greeting
-                    chatContainer.appendChild(botMessage);
+                    displayBotMessage(`How are you doing today 😊`);
                 } else {
                     // Default response for unrecognized commands
-                    const errorMessage = document.createElement("div");
-                    errorMessage.textContent = `Bot: Sorry, I don't understand that command. Type /help for available commands. 😕`;
-                    chatContainer.appendChild(errorMessage);
+                    displayBotMessage(`Sorry, I don't understand that command. Type /help for available commands. 😕`);
+                }
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+
+        // Optional: Allow sending messages with Enter key
+        userInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1d23;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff; /* Ensure text is visible */
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            padding-top: 20px; /* Add some padding at the top */
+        }
+
+        #chat-container {
+            flex: 1;
+            width: 90%; /* Adjusted for better mobile view */
+            max-width: 800px; /* Max width for larger screens */
+            margin: 0 auto 15px auto; /* Center and add margin at bottom */
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #1a1d23;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 10px; /* Unified border-radius */
+            display: flex;
+            flex-direction: column; /* Stack messages vertically */
+        }
+
+        #chat-container div {
+            padding: 10px;
+            border-bottom: 1px solid #2d3138;
+            color: #fff;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+            transition: transform 0.2s ease-in-out;
+            border-radius: 8px; /* Rounded corners for messages */
+            margin-bottom: 8px; /* Spacing between messages */
+        }
+
+        #chat-container div:last-child {
+            border-bottom: none; /* No border for the last message */
+        }
+
+        #chat-container div:hover {
+            transform: translateZ(5px); /* Slightly less aggressive hover for chat messages */
+            background-color: #2d3138;
+        }
+
+        #input-area { /* Renamed from input-container for clarity in this standalone file */
+            padding: 20px;
+            background-color: #1a1d23;
+            border-top: 1px solid #2d3138;
+            display: flex;
+            justify-content: center; /* Center the input elements */
+            align-items: center;
+            gap: 15px; /* Space between input and button */
+            width: 90%; /* Match chat container width */
+            max-width: 800px; /* Match chat container max-width */
+            margin: 0 auto; /* Center horizontally */
+            border-radius: 0 0 10px 10px; /* Rounded bottom corners */
+        }
+
+        #user-input {
+            flex: 1; /* Allows input to grow */
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            background-color: #2d3138;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #send-btn {
+            padding: 15px 25px; /* Adjusted padding for a better button size */
+            border: none;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+        }
+
+        #send-btn:hover {
+            background-color: #3e8e41;
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
+
+        #chat-container::-webkit-scrollbar {
+            width: 10px;
+            background-color: #1a1d23;
+        }
+
+        #chat-container::-webkit-scrollbar-thumb {
+            background-color: #2d3138;
+            border-radius: 10px;
+        }
+
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            #chat-container, #input-area {
+                width: 95%; /* Slightly wider on smaller screens */
+                padding: 15px; /* Reduced padding */
+            }
+            #user-input {
+                padding: 12px;
+                font-size: 16px;
+            }
+            #send-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            #input-area {
+                flex-direction: row; /* Keep elements in a row */
+                gap: 10px;
+            }
+        }
+
+        @media only screen and (max-width: 400px) {
+            #chat-container, #input-area {
+                width: 98%; /* Even wider on very small screens */
+                padding: 10px;
+            }
+            #user-input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            #send-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        /* CSS for the enhanced typing animation */
+        .typing-dots span {
+            display: inline-block; /* Allows transform to work */
+            opacity: 0;
+            animation: bounce-dot 1.4s infinite; /* Changed animation name */
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce-dot {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(0); /* Start and end at original position */
+            }
+            25% {
+                opacity: 1;
+                transform: translateY(-5px); /* Move up */
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0); /* Come back down */
+            }
+            75% {
+                opacity: 0; /* Fade out */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="chat-container"></div>
+    <div id="input-area"> <input type="text" id="user-input" placeholder="Type a command or /ai your question...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // --- Configuration for your API endpoints ---
+        const PRIVATE_API_ENDPOINT = "https://api.giftedtech.my.id/api/ai/openai"; 
+        const JOKE_API_ENDPOINT = "https://api.giftedtech.my.id/api/fun/jokes"; // Joke API Endpoint
+        const YOUR_API_KEY = "gifted"; // Your API key
+
+        // Function to display bot messages
+        function displayBotMessage(message, isHTML = false) {
+            const botMessageDiv = document.createElement("div");
+            if (isHTML) {
+                botMessageDiv.innerHTML = `Bot: <br>${message}`;
+            } else {
+                botMessageDiv.textContent = `Bot: ${message}`;
+            }
+            chatContainer.appendChild(botMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        /**
+         * Safely calculates a mathematical expression.
+         * This function is a safer alternative to `eval()` but still executes code from a string.
+         * For production applications requiring robust and secure math parsing,
+         * consider using a dedicated math expression parsing library (e.g., math.js).
+         * @param {string} expression The mathematical expression to calculate.
+         * @returns {number} The result of the calculation.
+         * @throws {Error} If the expression contains invalid characters or cannot be evaluated.
+         */
+        function safeCalculate(expression) {
+            // Basic validation: allow only numbers, operators (+, -, *, /, ., parentheses), and spaces.
+            // This prevents injection of arbitrary JavaScript code.
+            if (!/^[0-9+\-*/.\s()]+$/.test(expression)) {
+                throw new Error('Invalid characters in calculation. Only numbers and basic operators are allowed.');
+            }
+
+            try {
+                // Using the Function constructor is safer than global eval() as it runs in its own scope.
+                // It still executes code from a string, so strict input validation is crucial.
+                return new Function('return ' + expression)();
+            } catch (e) {
+                // Catch any errors during evaluation (e.g., syntax errors)
+                throw new Error('Could not evaluate expression. Please check syntax.');
+            }
+        }
+
+        // Function to fetch a joke from the API
+        async function fetchJoke() {
+            const loadingMessageDiv = document.createElement("div");
+            loadingMessageDiv.innerHTML = `Bot: Fetching joke<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 😂`;
+            chatContainer.appendChild(loadingMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const url = `${JOKE_API_ENDPOINT}?apikey=${YOUR_API_KEY}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let jokeText;
+                if (typeof data.result === 'string') {
+                    jokeText = data.result;
+                } else if (typeof data.result === 'object' && data.result !== null) {
+                    // Attempt to find a 'joke' property within the result object
+                    if (data.result.joke) {
+                        jokeText = data.result.joke;
+                    } else if (data.result.setup && data.result.punchline) {
+                        // If it's a two-part joke, concatenate them
+                        jokeText = `${data.result.setup} -- ${data.result.punchline}`;
+                    } else {
+                        // Fallback: stringify the object if no specific joke property is found
+                        jokeText = `Joke API response 'result' is an object without a 'joke' or 'setup/punchline' property. Raw object: ${JSON.stringify(data.result)}`;
+                        console.warn("Joke API response 'result' property is an object without a 'joke' or 'setup/punchline' property. Displaying raw object:", data.result);
+                    }
+                } else {
+                    // Fallback for unexpected data.result format (e.g., null, undefined, or non-object/non-string)
+                    jokeText = "Sorry, I couldn't find a joke. The API response was unexpected or empty.";
+                    console.error("Joke API response has an unexpected format for 'result':", data);
+                }
+
+                // Remove loading message
+                if (chatContainer.contains(loadingMessageDiv)) {
+                    chatContainer.removeChild(loadingMessageDiv);
+                }
+
+                if (jokeText) {
+                    displayBotMessage(jokeText);
+                } else {
+                    displayBotMessage("Sorry, I couldn't find a joke. The API response was unexpected.");
+                    console.error("Joke API response missing 'result' property:", data);
+                }
+            } catch (error) {
+                // Remove loading message even on error
+                if (chatContainer.contains(loadingMessageDiv)) {
+                    chatContainer.removeChild(loadingMessageDiv);
+                }
+                console.error("Error fetching joke:", error);
+                displayBotMessage(`Sorry, I couldn't fetch a joke right now. ${error.message ? `Error: ${error.message}` : 'Please try again later.'} 😔`);
+            }
+        }
+
+        const commands = [
+            { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Fetches a random joke! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> ` },
+            { command: "about", response: "Switch 1.0 is a multipurpose online bot still in development with few inbuilt commands and integrated APIs. 🤖" },
+            { command: "hi", response: "How are you doing today 😊" },
+            { command: "what's up", response: "I'm good 👌" },
+            { command: "dev", response: "Created By Musa Abiodun 🤝 Switch ™ and other members of the class of H.A.P.E 🎓💻. We're passionate about innovation and building cool stuff! 🚀" },
+            { command: "info", response: "Provides information and entertainment through various commands. 📺" },
+            { command: "socials", response: "You can find us on social media platforms: Twitter, Instagram, Facebook. 📱" },
+            // The /joke command now triggers the fetchJoke() function
+            { command: "quote", response: "\"Believe you can and you're halfway there.\" - Theodore Roosevelt 💡" },
+            { command: "quest1", response: "Explore the world of coding and discover new things. 🌐" },
+            { command: "quest2", response: "Learn a new programming language and build something amazing. 💻" },
+            { command: "update", response: "We're constantly updating and improving our chatbot. 🚀" },
+            { command: "theme", response: "Our theme is to provide a user-friendly and interactive experience. 🌈" },
+            { command: "reset", response: "Chatbot has been reset. 🔄" },
+            { command: "no.game", response: "No game available at the moment. 😔" },
+            { command: "ping", response: "Pong! 🏓" },
+            { command: "uptime", response: "Uptime: 24/7 ⏰" },
+            { command: "api", response: "Our API is used to provide various services and functionalities. 📈" },
+            {
+                command: "evaluate",
+                response: () => {
+                    const score = Math.floor(Math.random() * 100) + 1;
+                    const encouragingWords = [
+                        "Keep going!",
+                        "You're on the right track!",
+                        "Excellent work!",
+                        "Don't give up!",
+                        "You're making progress!",
+                        "Great effort!",
+                        "Good job!",
+                        "Stay motivated!",
+                        "You're doing well!",
+                        "Keep pushing forward!",
+                    ];
+                    const encouragingWord =
+                        encouragingWords[Math.floor(Math.random() * encouragingWords.length)];
+                    return `<p>Evaluation Score: ${score}/100</p><p>${encouragingWord}</p>`;
+                },
+            },
+        ];
+
+        sendBtn.addEventListener("click", async () => {
+            const userInputValue = userInput.value.trim();
+            if (userInputValue === "") return;
+
+            // Display user's message
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.textContent = `You: ${userInputValue}`;
+            chatContainer.appendChild(userMessageDiv);
+
+            // Clear input field immediately
+            userInput.value = "";
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const lowerCaseInput = userInputValue.toLowerCase();
+
+            // Handle specific dynamic commands first
+            if (lowerCaseInput === "/joke") { // Handle /joke command dynamically
+                await fetchJoke(); 
+                return; // Stop further processing for this command
+            } else if (lowerCaseInput.startsWith("/calculate")) {
+                try {
+                    const calculation = userInputValue.replace("/calculate ", "");
+                    const result = safeCalculate(calculation); // Use safeCalculate
+                    displayBotMessage(`Result: ${result} 📊`);
+                } catch (error) {
+                    displayBotMessage(`Error: ${error.message} 🤔`);
+                }
+            } else if (lowerCaseInput === "/clear") {
+                chatContainer.innerHTML = "";
+            } else if (lowerCaseInput.startsWith("/ai")) {
+                // --- Handle /ai command for API call ---
+                const aiQuery = userInputValue.substring(3).trim(); // Extract query after "/ai "
+                if (aiQuery === "") {
+                    displayBotMessage(`Please provide a question after /ai. For example: /ai What is JavaScript?`);
+                    return;
+                }
+
+                const thinkingMessageDiv = document.createElement("div");
+                // Added typing animation to the thinking message
+                thinkingMessageDiv.innerHTML = `Bot: Thinking<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 🤔`;
+                chatContainer.appendChild(thinkingMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                try {
+                    const encodedQuery = encodeURIComponent(aiQuery);
+                    // Using the PRIVATE_API_ENDPOINT for the /ai command
+                    const url = `${PRIVATE_API_ENDPOINT}?apikey=${YOUR_API_KEY}&q=${encodedQuery}`;
+
+                    const response = await fetch(url);
+
+                    // Check if the HTTP response itself is not OK
+                    if (!response.ok) {
+                        let errorText = `HTTP Error: ${response.status} ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.message) {
+                                errorText += ` - ${errorData.message}`;
+                            }
+                        } catch (jsonError) {
+                            // If response is not JSON, use the status text
+                        }
+                        throw new Error(errorText);
+                    }
+
+                    const data = await response.json();
+
+                    // Remove thinking message
+                    if (chatContainer.contains(thinkingMessageDiv)) {
+                        chatContainer.removeChild(thinkingMessageDiv);
+                    }
+
+                    let botAnswer;
+                    if (data.result !== undefined && data.result !== null) {
+                        // If data.result exists, ensure it's a string.
+                        // If it's an object, stringify it. Otherwise, use it directly.
+                        botAnswer = typeof data.result === 'object' ? JSON.stringify(data.result) : data.result;
+                    } else {
+                        // If data.result is missing, stringify the entire data object for debugging
+                        botAnswer = `I received an empty or unreadable response from the AI. Raw response: ${JSON.stringify(data)}`;
+                        console.error("AI API response missing 'result' property or unexpected format:", data);
+                    }
+                    
+                    displayBotMessage(botAnswer); // Always display the processed botAnswer
+
+                } catch (error) {
+                    // Remove thinking message even on error
+                    if (chatContainer.contains(thinkingMessageDiv)) {
+                        chatContainer.removeChild(thinkingMessageDiv);
+                    }
+                    console.error("Error fetching from private API:", error);
+                    displayBotMessage(`Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`);
+                }
+            } else {
+                // Handle other predefined commands
+                const commandName = lowerCaseInput.substring(1); // Remove '/' for command lookup
+                const command = commands.find((cmd) => cmd.command === commandName);
+                if (command) {
+                    displayBotMessage(
+                        typeof command.response === "function" ? command.response() : command.response,
+                        true // Pass true to indicate HTML content for these static commands
+                    );
+                } else if (
+                    lowerCaseInput.includes("hello") ||
+                    lowerCaseInput.includes("hi") ||
+                    lowerCaseInput.includes("hey")
+                ) {
+                    displayBotMessage(`How are you doing today 😊`);
+                } else {
+                    // Default response for unrecognized commands
+                    displayBotMessage(`Sorry, I don't understand that command. Type /help for available commands. 😕`);
                 }
             }
             chatContainer.scrollTop = chatContainer.scrollHeight;
