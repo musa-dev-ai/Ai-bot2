@@ -1,123 +1,155 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-   body {
-  font-family: Arial, sans-serif;
-  background-color: #1a1d23;
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1d23;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff; /* Ensure text is visible */
+        }
 
-#chat-container {
-  flex: 1;
-  width: 100%;
-  padding: 20px;
-  overflow-y: auto;
-  background-color: #1a1d23;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  border-radius: 10px 10px 0 0;
-}
+        h1 {
+            color: #fff;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 10px;
+            padding-top: 20px; /* Add some padding at the top */
+        }
 
-#chat-container div {
-  padding: 10px;
-  border-bottom: 1px solid #2d3138;
-  color: #fff;
-  transform-style: preserve-3d;
-  transform: translateZ(0);
-  transition: transform 0.2s ease-in-out;
-}
+        #chat-container {
+            flex: 1;
+            width: 90%; /* Adjusted for better mobile view */
+            max-width: 800px; /* Max width for larger screens */
+            margin: 0 auto 15px auto; /* Center and add margin at bottom */
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #1a1d23;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border-radius: 10px; /* Unified border-radius */
+            display: flex;
+            flex-direction: column; /* Stack messages vertically */
+        }
 
-#chat-container div:hover {
-  transform: translateZ(10px);
-  background-color: #2d3138;
-}
+        #chat-container div {
+            padding: 10px;
+            border-bottom: 1px solid #2d3138;
+            color: #fff;
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+            transition: transform 0.2s ease-in-out;
+            border-radius: 8px; /* Rounded corners for messages */
+            margin-bottom: 8px; /* Spacing between messages */
+        }
 
-#input-container {
-  padding: 20px;
-  background-color: #1a1d23;
-  border-top: 1px solid #2d3138;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+        #chat-container div:last-child {
+            border-bottom: none; /* No border for the last message */
+        }
 
-#user-input {
-  width: 70%;
-  padding: 15px;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  background-color: #2d3138;
-  color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
+        #chat-container div:hover {
+            transform: translateZ(5px); /* Slightly less aggressive hover for chat messages */
+            background-color: #2d3138;
+        }
 
-#send-btn {
-  width: 20%;
-  padding: 15px;
-  border: none;
-  border-radius: 10px;
-  background-color: #4CAF50;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
+        #input-area { /* Renamed from input-container for clarity in this standalone file */
+            padding: 20px;
+            background-color: #1a1d23;
+            border-top: 1px solid #2d3138;
+            display: flex;
+            justify-content: center; /* Center the input elements */
+            align-items: center;
+            gap: 15px; /* Space between input and button */
+            width: 90%; /* Match chat container width */
+            max-width: 800px; /* Match chat container max-width */
+            margin: 0 auto; /* Center horizontally */
+            border-radius: 0 0 10px 10px; /* Rounded bottom corners */
+        }
 
-#send-btn:hover {
-  background-color: #3e8e41;
-}
+        #user-input {
+            flex: 1; /* Allows input to grow */
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            background-color: #2d3138;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
 
-#chat-container::-webkit-scrollbar {
-  width: 10px;
-  background-color: #1a1d23;
-}
+        #send-btn {
+            padding: 15px 25px; /* Adjusted padding for a better button size */
+            border: none;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+        }
 
-#chat-container::-webkit-scrollbar-thumb {
-  background-color: #2d3138;
-  border-radius: 10px;
-}
+        #send-btn:hover {
+            background-color: #3e8e41;
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
 
-h1 {
-  color: #fff;
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
+        #chat-container::-webkit-scrollbar {
+            width: 10px;
+            background-color: #1a1d23;
+        }
 
-/* Responsive design */
-@media only screen and (max-width: 600px) {
-  #user-input {
-    width: 60%;
-  }
-  #send-btn {
-    width: 30%;
-  }
-}
+        #chat-container::-webkit-scrollbar-thumb {
+            background-color: #2d3138;
+            border-radius: 10px;
+        }
 
-@media only screen and (max-width: 400px) {
-  #user-input {
-    width: 55%;
-    padding: 10px;
-  }
-  #send-btn {
-    width: 35%;
-    padding: 10px;
-  }
-}
+        /* Responsive design */
+        @media only screen and (max-width: 600px) {
+            #chat-container, #input-area {
+                width: 95%; /* Slightly wider on smaller screens */
+                padding: 15px; /* Reduced padding */
+            }
+            #user-input {
+                padding: 12px;
+                font-size: 16px;
+            }
+            #send-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            #input-area {
+                flex-direction: row; /* Keep elements in a row */
+                gap: 10px;
+            }
+        }
 
+        @media only screen and (max-width: 400px) {
+            #chat-container, #input-area {
+                width: 98%; /* Even wider on very small screens */
+                padding: 10px;
+            }
+            #user-input {
+                padding: 10px;
+                font-size: 14px;
+            }
+            #send-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Chatbot</h1>
+    <h1>Chatbot</h1>
     <div id="chat-container"></div>
-    <div style="text-align: center;">
-        <input type="text" id="user-input" placeholder="Type a command...">
+    <div id="input-area"> <input type="text" id="user-input" placeholder="Type a command or /ai your question...">
         <button id="send-btn">Send</button>
     </div>
 
@@ -126,30 +158,13 @@ h1 {
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // Function to display messages in the chat container
-        function displayMessage(sender, message) {
-            const messageDiv = document.createElement('div');
-            // Check if message is HTML (like from /help)
-            if (message.includes('<p>') || message.includes('<br>')) {
-                messageDiv.innerHTML = `${sender}: ${message}`;
-            } else {
-                messageDiv.textContent = `${sender}: ${message}`;
-            }
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to bottom
-        }
-
-        // --- WARNING: DIRECT API KEY EXPOSURE ---
-        // This is INSECURE for production. For educational/testing purposes only.
-        // Replace with your actual OpenAI API key and ensure it's kept private.
-        // If deploying, use a backend server to proxy requests.
-        const OPENAI_API_KEY = "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";
-        const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-        // --- END WARNING ---
-
+        // --- Configuration for your private AI endpoint ---
+        // This is the endpoint you specified for the /ai command
+        const PRIVATE_API_ENDPOINT = "https://api.giftedtech.my.id/api/ai/openai"; 
+        const YOUR_API_KEY = "gifted"; // Your API key
 
         const commands = [
-            { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Why don't scientists trust atoms? Because they make up everything! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> <p>20. /ai [your question]: Ask the AI any question! ✨</p>` },
+            { command: "help", response: ` <p>Available commands: 📚</p> <p>1. /help: Displays this list of available commands and their descriptions. 🤔</p> <p>2. /about: This is a chatbot developed to demonstrate various features and functionalities. 🤖</p> <p>3. /dev: Developed by a team of passionate developers. 💻</p> <p>4. /info: Provides information and entertainment through various commands. 📺</p> <p>5. /socials: You can find us on social media platforms: Twitter, Instagram, Facebook. 📱</p> <p>6. /joke: Why don't scientists trust atoms? Because they make up everything! 😂</p> <p>7. /quote: "Believe you can and you're halfway there." - Theodore Roosevelt 💡</p> <p>8. /quest1: Explore the world of coding and discover new things. 🌐</p> <p>9. /quest2: Learn a new programming language and build something amazing. 💻</p> <p>10. /update: We're constantly updating and improving our chatbot. 🚀</p> <p>11. /evaluate: Evaluates a prompt or idea based on creativity, clarity, relevance, and engagement. 📊</p> <p>12. /theme: Our theme is to provide a user-friendly and interactive experience. 🌈</p> <p>13. /reset: Chatbot has been reset. 🔄</p> <p>14. /no.game: No game available at the moment. 😔</p> <p>15. /ping: Pong! 🏓</p> <p>16. /uptime: Uptime: 24/7 ⏰</p> <p>17. /api: Our API is used to provide various services and functionalities. 📈</p> <p>18. /calculate: Calculates mathematical expressions. 📊</p> <p>19. /clear: Clears the chat 🗑️</p> ` },
             { command: "about", response: "Switch 1.0 is a multipurpose online bot still in development with few inbuilt commands and integrated APIs. 🤖" },
             { command: "hi", response: "How are you doing today 😊" },
             { command: "what's up", response: "I'm good 👌" },
@@ -190,93 +205,131 @@ h1 {
             },
         ];
 
-        sendBtn.addEventListener("click", async () => { // Made async to handle fetch calls
+        sendBtn.addEventListener("click", async () => { // Added 'async' keyword here
             const userInputValue = userInput.value.trim();
-            if (!userInputValue) return; // Ignore empty input
+            if (userInputValue === "") return; // Prevent sending empty messages
 
-            displayMessage("You", userInputValue); // Display user's message
+            // Display user's message
+            const userMessageDiv = document.createElement("div");
+            userMessageDiv.textContent = `You: ${userInputValue}`;
+            chatContainer.appendChild(userMessageDiv);
 
-            if (userInputValue.toLowerCase().startsWith("/ai ")) {
-                const query = userInputValue.substring(4).trim();
-                if (!query) {
-                    displayMessage("Bot", "Please provide a question after /ai. Example: /ai What is the capital of France?");
-                    userInput.value = "";
+            // Clear input field immediately
+            userInput.value = "";
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Check for built-in commands first
+            if (userInputValue.toLowerCase().startsWith("/calculate")) {
+                try {
+                    const calculation = userInputValue.replace("/calculate ", "");
+                    const result = eval(calculation); // Be cautious with eval() in production, as it can be a security risk.
+                    const botMessage = document.createElement("div");
+                    botMessage.innerHTML = `Bot: Result: ${result} 📊`;
+                    chatContainer.appendChild(botMessage);
+                } catch (error) {
+                    const errorMessage = document.createElement("div");
+                    errorMessage.textContent = `Bot: Error: Invalid calculation 🤔`;
+                    chatContainer.appendChild(errorMessage);
+                }
+            } else if (userInputValue.toLowerCase() === "/clear") {
+                chatContainer.innerHTML = "";
+            } else if (userInputValue.toLowerCase().startsWith("/ai")) {
+                // --- Handle /ai command for API call ---
+                const aiQuery = userInputValue.substring(3).trim(); // Extract query after "/ai "
+                if (aiQuery === "") {
+                    const botMessage = document.createElement("div");
+                    botMessage.textContent = `Bot: Please provide a question after /ai. For example: /ai What is JavaScript?`;
+                    chatContainer.appendChild(botMessage);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                     return;
                 }
 
-                displayMessage("Bot", "Thinking... 🤔"); // Indicate that the AI is processing
-                try {
-                    const response = await fetch(OPENAI_API_URL, {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${OPENAI_API_KEY}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            "model": "gpt-3.5-turbo", // You can try "gpt-4" if you have access and want more advanced responses
-                            "messages": [{"role": "user", "content": query}],
-                            "max_tokens": 500, // Reduced max_tokens for quicker responses, adjust as needed
-                            "temperature": 0.7 // Controls creativity, 0.7 is a good balance
-                        })
-                    });
+                const thinkingMessageDiv = document.createElement("div");
+                thinkingMessageDiv.innerHTML = `Bot: Thinking... 🤔`;
+                chatContainer.appendChild(thinkingMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
 
+                try {
+                    const encodedQuery = encodeURIComponent(aiQuery);
+                    const url = `${PRIVATE_API_ENDPOINT}?apikey=${YOUR_API_KEY}&q=${encodedQuery}`;
+
+                    const response = await fetch(url);
+
+                    // Check if the HTTP response itself is not OK
                     if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(`OpenAI API error: ${response.status} - ${errorData.error ? errorData.error.message : 'Unknown error'}`);
+                        let errorText = `HTTP Error: ${response.status} ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.message) {
+                                errorText += ` - ${errorData.message}`;
+                            }
+                        } catch (jsonError) {
+                            // If response is not JSON, use the status text
+                        }
+                        throw new Error(errorText);
                     }
 
                     const data = await response.json();
-                    if (data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
-                        displayMessage("Bot", data.choices[0].message.content);
-                    } else {
-                        displayMessage("Bot", "Couldn't get a valid response from AI. 😕");
+
+                    // Remove thinking message
+                    if (chatContainer.contains(thinkingMessageDiv)) {
+                        chatContainer.removeChild(thinkingMessageDiv);
                     }
-                } catch (error) {
-                    console.error("Error calling OpenAI API:", error);
-                    displayMessage("Bot", `Error: ${error.message}. Please check the console for details. 😞`);
-                }
-            } else if (userInputValue.startsWith("/calculate")) {
-                try {
-                    const calculation = userInputValue.replace("/calculate ", "");
-                    // Basic validation for eval (still not perfectly secure, but better than raw eval)
-                    if (/^[0-9+\-*/().\s]+$/.test(calculation)) {
-                        const result = eval(calculation);
-                        displayMessage("Bot", `Result: ${result} 📊`);
+
+                    const botMessage = document.createElement("div");
+                    // *** MODIFIED HERE: Now specifically looking for 'data.result' ***
+                    const botAnswer = data.result || JSON.stringify(data); // Fallback to stringify entire data if 'result' is not found
+
+                    if (botAnswer) {
+                        botMessage.innerHTML = `Bot: ${botAnswer}`;
                     } else {
-                        displayMessage("Bot", `Error: Invalid calculation characters 🤔`);
+                        botMessage.innerHTML = `Bot: I received an empty or unreadable response from the AI.`;
                     }
+                    chatContainer.appendChild(botMessage);
+
                 } catch (error) {
-                    displayMessage("Bot", `Error: Invalid calculation 🤔`);
+                    // Remove thinking message even on error
+                    if (chatContainer.contains(thinkingMessageDiv)) {
+                        chatContainer.removeChild(thinkingMessageDiv);
+                    }
+                    console.error("Error fetching from private API:", error);
+                    const errorMessage = document.createElement("div");
+                    errorMessage.textContent = `Bot: Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`;
+                    chatContainer.appendChild(errorMessage);
                 }
-            } else if (userInputValue.toLowerCase() === "/clear") {
-                chatContainer.innerHTML = "";
             } else {
+                // Handle other predefined commands
                 const commandName = userInputValue.substring(1).toLowerCase();
                 const command = commands.find((cmd) => cmd.command === commandName);
                 if (command) {
-                    const responseContent = typeof command.response === "function" ? command.response() : command.response;
-                    displayMessage("Bot", responseContent);
+                    const botMessage = document.createElement("div");
+                    botMessage.innerHTML = `Bot: <br>${typeof command.response === "function" ? command.response() : command.response}`;
+                    chatContainer.appendChild(botMessage);
                 } else if (
                     userInputValue.toLowerCase().includes("hello") ||
                     userInputValue.toLowerCase().includes("hi") ||
                     userInputValue.toLowerCase().includes("hey")
                 ) {
-                    displayMessage("Bot", "😊");
+                    const botMessage = document.createElement("div");
+                    botMessage.innerHTML = `Bot: How are you doing today 😊`; // Changed to a specific greeting
+                    chatContainer.appendChild(botMessage);
                 } else {
-                    displayMessage("Bot", "😕");
+                    // Default response for unrecognized commands
+                    const errorMessage = document.createElement("div");
+                    errorMessage.textContent = `Bot: Sorry, I don't understand that command. Type /help for available commands. 😕`;
+                    chatContainer.appendChild(errorMessage);
                 }
             }
-            userInput.value = "";
             chatContainer.scrollTop = chatContainer.scrollHeight;
         });
 
-        // Add support for "Enter" key press
+        // Optional: Allow sending messages with Enter key
         userInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
-                sendBtn.click(); // Simulate a click on the send button
+                sendBtn.click();
             }
         });
     </script>
 </body>
 </html>
+
