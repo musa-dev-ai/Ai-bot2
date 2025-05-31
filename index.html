@@ -144,6 +144,35 @@
                 font-size: 14px;
             }
         }
+
+        /* CSS for the enhanced typing animation */
+        .typing-dots span {
+            display: inline-block; /* Allows transform to work */
+            opacity: 0;
+            animation: bounce-dot 1.4s infinite; /* Changed animation name */
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce-dot {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(0); /* Start and end at original position */
+            }
+            25% {
+                opacity: 1;
+                transform: translateY(-5px); /* Move up */
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0); /* Come back down */
+            }
+            75% {
+                opacity: 0; /* Fade out */
+            }
+        }
     </style>
 </head>
 <body>
@@ -245,7 +274,8 @@
                 }
 
                 const thinkingMessageDiv = document.createElement("div");
-                thinkingMessageDiv.innerHTML = `Bot: Thinking... 🤔`;
+                // Added typing animation to the thinking message
+                thinkingMessageDiv.innerHTML = `Bot: Thinking<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 🤔`;
                 chatContainer.appendChild(thinkingMessageDiv);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -277,7 +307,7 @@
                     }
 
                     const botMessage = document.createElement("div");
-                    // *** MODIFIED HERE: Now specifically looking for 'data.result' ***
+                    // Now specifically looking for 'data.result'
                     const botAnswer = data.result || JSON.stringify(data); // Fallback to stringify entire data if 'result' is not found
 
                     if (botAnswer) {
