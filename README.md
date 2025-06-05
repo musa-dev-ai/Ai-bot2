@@ -49,12 +49,15 @@ These commands are currently undergoing maintenance and upgrades. Stay tuned for
 Switch 1.0 is built using plain HTML, CSS, and JavaScript, making it incredibly easy to set up and run locally.
  * Clone the Repository (or save the file):
    If you're on GitHub, you can clone this repository:
+   
    git clone https://github.com/your-username/Switch-1.0.git
+   
 cd Switch-1.0
 
    Alternatively, you can just save the provided HTML file (e.g., index.html) to your local machine.
  * Open in Browser:
    Simply open the index.html file in your preferred web browser. No special server setup is required!
+   
 🌐 API Endpoints
 Switch 1.0 leverages the following external APIs to deliver its dynamic content. All API calls use a shared apikey=gifted.
  * AI Endpoint: https://api.giftedtech.web.id/api/ai/openai
@@ -71,8 +74,12 @@ Have questions, suggestions, or just want to say hi? Reach out to our network co
  * WhatsApp: +2349068649046 📞
  * Telegram: @lost_and_off ✉️
  * Gmail: techxunlimited@gmail.com 📧
+   
 🤝 Contributing
 We welcome contributions! If you have ideas for new features, bug fixes, or improvements, please feel free to fork this repository, make your changes, and submit a pull request.
+
 📜 License
 This project is open-source and available under the MIT License.
-Enjoy your chat experience with Switch 1.0! We're always evolving. 🚀
+Enjoy your chat experience with Switch 1.0!
+
+We're always evolving. 🚀
