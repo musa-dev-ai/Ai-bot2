@@ -281,10 +281,16 @@
                 if (typeof data.result === 'string') {
                     contentText = data.result;
                 } else if (typeof data.result === 'object' && data.result !== null) {
-                    // Attempt to find specific properties within result object
-                    if (data.result.joke) { // For joke API
-                        contentText = data.result.joke;
-                    } else if (data.result.quote && data.result.author) { // For quotes API
+                    // Specific handling for JOKE_API_ENDPOINT, as it returns setup/punchline
+                    if (endpoint === JOKE_API_ENDPOINT) {
+                        if (data.result.setup && data.result.punchline) {
+                            contentText = `${data.result.setup} -- ${data.result.punchline}`;
+                        } else if (data.result.joke) { // Fallback for a single 'joke' property within result
+                            contentText = data.result.joke;
+                        }
+                    }
+                    // Generic object parsing for other APIs
+                    else if (data.result.quote && data.result.author) { // For quotes API
                         contentText = `"${data.result.quote}" - ${data.result.author}`;
                     } else if (data.result.advice) { // For advice API
                         contentText = data.result.advice;
@@ -294,7 +300,7 @@
                         contentText = data.result.friendship;
                     } else if (data.result.gratitude) { // For gratitude API
                         contentText = data.result.gratitude;
-                    } else if (data.result.fancyText) { // For fancy text APIs, specifically look for 'fancyText' within result
+                    } else if (data.result.fancyText) { // For fancy text APIs
                         contentText = data.result.fancyText;
                     }
                     else {
@@ -302,7 +308,7 @@
                         contentText = `API response 'result' is an object without a known property. Raw object: ${JSON.stringify(data.result)}`;
                         console.warn(`API response 'result' property for ${endpoint} is an object without a known property. Displaying raw object:`, data.result);
                     }
-                } else if (data.fancyText) { // Check for 'fancyText' directly in the root 'data' object
+                } else if (data.fancyText) { // Check for 'fancyText' directly in the root 'data' object (for fancy APIs that might have this structure)
                     contentText = data.fancyText;
                 }
                 else {
@@ -375,7 +381,7 @@
                     <ul>
                         <li><strong>WhatsApp</strong>: <a href="https://wa.me/2349068649046" target="_blank">+2349068649046</a> 📞</li>
                         <li><strong>Telegram</strong>: <a href="https://t.me/lost_and_off" target="_blank">@lost_and_off</a> ✉️</li>
-                        <li><strong>Gmail</strong>: <a href="mailto:techxunlimited@gmail.com">techxunlimited@gmail0.com</a> 📧</li>
+                        <li><strong>Gmail</strong>: <a href="mailto:techxunlimited@gmail.com">techxunlimited@gmail.com</a> 📧</li>
                     </ul>
                     <p>_Feel free to reach out to our network coordinates!_ 🌐</p>
                 ` 
