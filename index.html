@@ -281,12 +281,15 @@
                 if (typeof data.result === 'string') {
                     contentText = data.result;
                 } else if (typeof data.result === 'object' && data.result !== null) {
-                    // Specific handling for JOKE_API_ENDPOINT, as it returns setup/punchline
+                    // Specific handling for JOKE_API_ENDPOINT, as it often returns setup/punchline
                     if (endpoint === JOKE_API_ENDPOINT) {
                         if (data.result.setup && data.result.punchline) {
                             contentText = `${data.result.setup} -- ${data.result.punchline}`;
-                        } else if (data.result.joke) { // Fallback for a single 'joke' property within result
+                        } else if (data.result.joke) { // Fallback for a single 'joke' property within result (less common for this API)
                             contentText = data.result.joke;
+                        } else {
+                            contentText = `Joke API response 'result' is an object but lacks expected 'setup'/'punchline' or 'joke' properties. Raw object: ${JSON.stringify(data.result)}`;
+                            console.warn("Joke API response 'result' property is an object without expected properties. Displaying raw object:", data.result);
                         }
                     }
                     // Generic object parsing for other APIs
@@ -300,7 +303,7 @@
                         contentText = data.result.friendship;
                     } else if (data.result.gratitude) { // For gratitude API
                         contentText = data.result.gratitude;
-                    } else if (data.result.fancyText) { // For fancy text APIs
+                    } else if (data.result.fancyText) { // For fancy text APIs (if reactivated)
                         contentText = data.result.fancyText;
                     }
                     else {
@@ -317,19 +320,22 @@
                     console.error(`API response for ${endpoint} has an unexpected format for 'result':`, data);
                 }
 
-                if (contentText) {
-                    displayBotMessage(contentText);
-                } else {
-                    displayBotMessage("Sorry, I couldn't get content from the API.");
-                    console.error(`API response for ${endpoint} was unreadable or empty:`, data);
+                // If contentText is still undefined or an empty string after parsing,
+                // and no specific error occurred, display a generic message.
+                if (!contentText || contentText.trim() === "") {
+                    contentText = "Sorry, I couldn't get content from the API or the content was empty.";
                 }
+
+                displayBotMessage(contentText); // Always display the processed botAnswer
+
             } catch (error) {
-                // Remove loading message even on error
+                console.error(`Error fetching from ${endpoint}:`, error);
+                displayBotMessage(`Sorry, I couldn't fetch content right now. ${error.message ? `Error: ${error.message}` : 'Please try again later.'} 😔`);
+            } finally {
+                // Ensure loading message is always removed, regardless of success or error
                 if (chatContainer.contains(loadingMessageDiv)) {
                     chatContainer.removeChild(loadingMessageDiv);
                 }
-                console.error(`Error fetching from ${endpoint}:`, error);
-                displayBotMessage(`Sorry, I couldn't fetch content right now. ${error.message ? `Error: ${error.message}` : 'Please try again later.'} 😔`);
             }
         }
 
@@ -500,10 +506,10 @@
 
                     const data = await response.json();
 
-                    // Remove thinking message
-                    if (chatContainer.contains(thinkingMessageDiv)) {
-                        chatContainer.removeChild(thinkingMessageDiv);
-                    }
+                    // Remove thinking message is now in finally block
+                    // if (chatContainer.contains(thinkingMessageDiv)) {
+                    //     chatContainer.removeChild(thinkingMessageDiv);
+                    // }
 
                     let botAnswer;
                     if (data.result !== undefined && data.result !== null) {
@@ -519,12 +525,13 @@
                     displayBotMessage(botAnswer); // Always display the processed botAnswer
 
                 } catch (error) {
-                    // Remove thinking message even on error
+                    console.error("Error fetching from private API:", error);
+                    displayBotMessage(`Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`);
+                } finally {
+                    // Ensure thinking message is always removed, regardless of success or error
                     if (chatContainer.contains(thinkingMessageDiv)) {
                         chatContainer.removeChild(thinkingMessageDiv);
                     }
-                    console.error("Error fetching from private API:", error);
-                    displayBotMessage(`Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`);
                 }
             } else {
                 // Handle other predefined commands
