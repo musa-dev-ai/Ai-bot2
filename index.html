@@ -5,16 +5,26 @@
     <title>Chatbot</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        /* Global box-sizing for consistent layout calculations */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        /* Ensure html and body take full height to act as proper flex containers */
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #1a1d23;
             margin: 0;
             padding: 0;
-            height: 100vh;
+            /* Allow vertical scrolling on the body if content overflows */
+            overflow-y: auto; 
             display: flex;
             flex-direction: column;
             color: #fff; /* Ensure text is visible */
-            overflow: hidden; /* Prevent body from scrolling, chat-container will handle its own overflow */
         }
 
         h1 {
@@ -23,13 +33,15 @@
             font-size: 24px;
             margin-bottom: 10px;
             padding-top: 20px; /* Add some padding at the top */
+            flex-shrink: 0; /* Prevent h1 from shrinking */
         }
 
         #chat-container {
-            flex: 1;
+            /* Fixed height to move input field up */
+            height: 60vh; /* Adjust this value (e.g., 50vh, 70vh) to move it more or less */
             width: 90%; /* Adjusted for better mobile view */
             max-width: 800px; /* Max width for larger screens */
-            margin: 0 auto 15px auto; /* Center and add margin at bottom */
+            margin: 0 auto; /* Center horizontally, removed bottom margin */
             padding: 20px;
             overflow-y: auto; /* This makes the chat content scrollable within its own container */
             background-color: #1a1d23;
@@ -59,7 +71,7 @@
             background-color: #2d3138;
         }
 
-        #input-area { /* Renamed from input-container for clarity in this standalone file */
+        #input-area {
             padding: 20px;
             background-color: #1a1d23;
             border-top: 1px solid #2d3138;
@@ -102,6 +114,18 @@
             transform: translateY(-2px); /* Lift effect on hover */
         }
 
+        /* Styles for the main page scrollbar */
+        body::-webkit-scrollbar {
+            width: 10px;
+            background-color: #1a1d23; /* Same as body background */
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background-color: #555; /* Darker gray for the thumb */
+            border-radius: 10px;
+        }
+
+        /* Styles for the chat container's internal scrollbar */
         #chat-container::-webkit-scrollbar {
             width: 10px;
             background-color: #1a1d23;
@@ -379,7 +403,7 @@
                 command: "dev", 
                 response: "Created By Musa Abiodun 🤝 Switch ™ and other members of the class of H.A.P.E 🎓💻. We're passionate about innovation and building cool stuff! 🚀" 
             },
-            { command: "info", response: "Provides information and entertainment through various commands. 📺" },
+            { command: "info", response: "Provides information and entertainment through various commands.📺" },
             { 
                 command: "socials", 
                 response: `
@@ -505,12 +529,7 @@
                     }
 
                     const data = await response.json();
-
-                    // Remove thinking message is now in finally block
-                    // if (chatContainer.contains(thinkingMessageDiv)) {
-                    //     chatContainer.removeChild(thinkingMessageDiv);
-                    // }
-
+                    
                     let botAnswer;
                     if (data.result !== undefined && data.result !== null) {
                         // If data.result exists, ensure it's a string.
