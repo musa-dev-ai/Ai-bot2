@@ -265,6 +265,61 @@
         }
 
         /**
+         * Formats the raw AI response text into HTML with paragraphs, lists, and bolding.
+         * @param {string} rawText The raw text response from the AI API.
+         * @returns {string} The formatted HTML string.
+         */
+        function formatAiResponse(rawText) {
+            // Normalize newlines and remove leading/trailing whitespace
+            let processedText = rawText.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+            // Convert any **bold** markdown to <strong>bold</strong> HTML
+            processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            const lines = processedText.split('\n');
+            let htmlOutput = [];
+            let inList = false;
+
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine === '') {
+                    // If an empty line is encountered and we were in a list, close the list
+                    if (inList) {
+                        htmlOutput.push('</ul>');
+                        inList = false;
+                    }
+                    // Skip actual empty lines to avoid empty <p> tags
+                    return;
+                }
+
+                if (trimmedLine.startsWith('- ')) {
+                    if (!inList) {
+                        htmlOutput.push('<ul>');
+                        inList = true;
+                    }
+                    // Add list item, trimming the '- ' prefix
+                    htmlOutput.push(`<li>${trimmedLine.substring(2).trim()}</li>`);
+                } else {
+                    // If we were in a list, close it before starting a new paragraph
+                    if (inList) {
+                        htmlOutput.push('</ul>');
+                        inList = false;
+                    }
+                    // Wrap the line in a paragraph tag
+                    htmlOutput.push(`<p>${trimmedLine}</p>`);
+                }
+            });
+
+            // Close the list if it's still open at the very end of the text
+            if (inList) {
+                htmlOutput.push('</ul>');
+            }
+
+            return htmlOutput.join('');
+        }
+
+
+        /**
          * Generic function to fetch content from an API and handle common response structures.
          * @param {string} endpoint The API endpoint to call.
          * @param {string} loadingText Text to display while fetching.
@@ -532,16 +587,16 @@
                     
                     let botAnswer;
                     if (data.result !== undefined && data.result !== null) {
-                        // If data.result exists, ensure it's a string.
-                        // If it's an object, stringify it. Otherwise, use it directly.
-                        botAnswer = typeof data.result === 'object' ? JSON.stringify(data.result) : data.result;
+                        let rawAiText = typeof data.result === 'object' ? JSON.stringify(data.result) : data.result;
+                        botAnswer = formatAiResponse(rawAiText); // Format the AI response here
                     } else {
                         // If data.result is missing, stringify the entire data object for debugging
                         botAnswer = `I received an empty or unreadable response from the AI. Raw response: ${JSON.stringify(data)}`;
                         console.error("AI API response missing 'result' property or unexpected format:", data);
                     }
                     
-                    displayBotMessage(botAnswer); // Always display the processed botAnswer
+                    // Pass true to displayBotMessage because botAnswer is now HTML
+                    displayBotMessage(botAnswer, true); 
 
                 } catch (error) {
                     console.error("Error fetching from private API:", error);
