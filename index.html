@@ -41,7 +41,7 @@
 
         @keyframes pulse-h1 {
             from { filter: drop-shadow(0 0 5px rgba(76, 175, 80, 0.8)) drop-shadow(0 0 15px rgba(76, 175, 80, 0.4)); }
-            to { filter: drop-shadow(0 0 8px rgba(76, 175, 80, 1)) drop-shadow(0 0 20px rgba(76, 175, 80, 0.6)); }
+            to { filter: drop-shadow(0 0 8px rgba(76, 175, 80, 1)) drop_shadow(0 0 20px rgba(76, 175, 80, 0.6)); }
         }
 
         #chat-container {
@@ -329,25 +329,136 @@
                 font-size: 18px; /* Further adjust h1 size for very small screens */
             }
         }
+
+        /* New styles for the help menu */
+        .help-menu-container {
+            background-color: #22252b; /* Slightly lighter than chat background */
+            border: 1px solid rgba(76, 175, 80, 0.2); /* Subtle green border */
+            border-radius: 12px; /* Rounded corners */
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(76, 175, 80, 0.2); /* Enhanced shadow with neon glow */
+            font-family: 'Inter', sans-serif;
+            color: #e0e0e0;
+            max-width: 100%; /* Ensure it's responsive */
+            overflow-x: auto; /* Allow horizontal scroll for very long lines if needed */
+        }
+
+        .help-menu-container h2 {
+            color: #4CAF50;
+            font-size: 20px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            filter: drop-shadow(0 0 4px rgba(76, 175, 80, 0.7)); /* Neon glow for heading */
+        }
+
+        .help-menu-container p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .help-menu-container ul {
+            list-style: none; /* Remove default bullet points */
+            padding: 0;
+            margin: 0;
+        }
+
+        .help-menu-container li {
+            background-color: #1a1d23; /* Darker background for each list item */
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(76, 175, 80, 0.1); /* Very subtle border */
+            box-shadow: inset 0 0 5px rgba(76, 175, 80, 0.05); /* Inner glow */
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .help-menu-container li:hover {
+            background-color: #2d3138; /* Slightly lighter on hover */
+            transform: translateX(3px); /* Small slide effect on hover */
+            box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.2);
+        }
+
+        .help-menu-container li strong {
+            color: #4CAF50; /* Highlight command names */
+            font-weight: 700;
+        }
+
+        .help-menu-container li em {
+            color: #a0a0a0; /* Grey out "In Development" */
+            font-style: normal;
+        }
+
+        .help-menu-container li a {
+            color: #64B5F6; /* Link color */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .help-menu-container li a:hover {
+            color: #2196F3; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+
+        .help-menu-container .syntax-note {
+            font-size: 0.9em;
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.8;
+            color: #a0a0a0;
+        }
+
+        /* Footer Credits Styling */
+        .credits-footer {
+            margin-top: auto; /* Pushes footer to the bottom */
+            padding: 15px;
+            background-color: #2d3138; /* Matches input area background */
+            color: #888;
+            font-size: 0.8em;
+            text-align: center;
+            border-top: 1px solid #444;
+            border-radius: 10px 10px 0 0; /* Rounded top corners */
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow upwards */
+            flex-shrink: 0;
+        }
+
+        .credits-footer a {
+            color: #4CAF50; /* Green link color */
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .credits-footer a:hover {
+            color: #3e8e41;
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 <body>
     <h1>🤖 Chatbot|Switch 1.0 ⚡</h1>
     <div id="chat-container"></div>
-    <div id="input-area"> <input type="text" id="user-input" placeholder="Type a command or ask me anything...">
+    <div id="input-area"> <input type="text" id="user-input" placeholder="Ask me anything, or type /help...">
         <button id="send-btn">Send</button>
     </div>
 
+    <!-- Credits Section Added Here -->
+    <footer class="credits-footer">
+        <p>&copy; 2024 Chatbot|Switch 1.0. Crafted with passion by <a href="https://github.com/MusaAbiodun" target="_blank">Musa Abiodun</a> and the H.A.P.E. Team. All rights reserved.</p>
+    </footer>
+
     <script>
+        // Get references to DOM elements - Made by Musa Abiodun and H.A.P.E. Team
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // --- API Endpoints ---
+        // --- API Endpoints Configuration --- Made by Musa Abiodun and H.A.P.E. Team
         // Google Gemini API (for AI responses)
         const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"; 
         
-        // Primary API set: giftedtech.web.id
+        // Primary API set: giftedtech.web.id - Made by Musa Abiodun and H.A.P.E. Team
         const GIFTEDTECH_JOKE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/jokes";
         const GIFTEDTECH_QUOTES_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/quotes";
         const GIFTEDTECH_ADVICE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/advice";
@@ -357,16 +468,16 @@
         const GIFTEDTECH_FANCY_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancy";
         const GIFTEDTECH_FANCYV2_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancyv2";
 
-        // Secondary API set: apis.davidcyriltech.my.id
+        // Secondary API set: apis.davidcyriltech.my.id - Made by Musa Abiodun and H.A.P.E. Team
         const DAVIDCYRILTECH_FACTS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/fact";
         const DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT = "https://apis.davidcyriltech.my.id/pickupline";
         const DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/quotes"; // Note: User requested as /altquotes
-        const DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/technews";
+        const DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/technews"; // This API is now deprecated for /technews command
         const DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/convert";
         const DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/currencies";
         const DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini"; // For /ai fallback
 
-        // --- API Keys ---
+        // --- API Keys Configuration --- Made by Musa Abiodun and H.A.P.E. Team
         const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs
         const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs
         const DAVIDCYRILTECH_API_KEY = ""; // NOTE: Set this key if required by davidcyriltech.my.id APIs
@@ -374,6 +485,8 @@
         /**
          * Utility function to copy text to clipboard and show feedback.
          * @param {string} text The text to copy.
+         * @returns {void}
+         * Made by Musa Abiodun and H.A.P.E. Team
          */
         function copyToClipboard(text) {
             const tempInput = document.createElement('textarea');
@@ -394,8 +507,6 @@
                 console.log('Text copied to clipboard!');
             } catch (err) {
                 console.error('Failed to copy text: ', err);
-                // In a real application, you'd use a custom modal for this alert
-                // alert('Failed to copy text. Please copy manually: ' + text); 
                 displayMessage('bot', `Failed to copy text. Please copy manually: "${text}"`, 'error');
             } finally {
                 if (document.body.contains(tempInput)) {
@@ -404,61 +515,73 @@
             }
         }
 
-        // Function to display messages with proper styling based on type
-        // This function no longer adds "You:" or "Bot:" prefixes, and assumes HTML content for 'bot' type
-        function displayMessage(sender, text, type = 'bot') { 
+        /**
+         * Function to display messages in the chat container with dynamic styling.
+         * @param {string} sender - 'user' or 'bot'.
+         * @param {string} text - The message content.
+         * @param {string} [type='bot'] - 'bot', 'loading', or 'error' for styling.
+         * @param {boolean} [isHTML=false] - True if 'text' contains HTML, false for plain text.
+         * Made by Musa Abiodun and H.A.P.E. Team
+         */
+        function displayMessage(sender, text, type = 'bot', isHTML = false) { 
             const messageDiv = document.createElement("div");
-            messageDiv.classList.add('chat-message'); // Base class for all messages
+            messageDiv.classList.add('chat-message');
 
-            const innerContentDiv = document.createElement('div'); // To hold the actual message text/HTML
-            innerContentDiv.classList.add('message-content'); // Optional class for styling content area
+            const innerContentDiv = document.createElement('div');
+            innerContentDiv.classList.add('message-content');
 
             if (sender === 'user') {
                 messageDiv.classList.add('user-message');
-                innerContentDiv.textContent = text; // Display user's text directly
+                innerContentDiv.textContent = text;
             } else { // Bot messages (including loading and error)
-                messageDiv.classList.add('bot-message'); // Default bot message style
+                messageDiv.classList.add('bot-message');
                 
                 if (type === 'loading') {
                     messageDiv.classList.add('loading-message');
-                    innerContentDiv.innerHTML = text; // Allows HTML for typing dots
+                    innerContentDiv.innerHTML = text; // Typing dots are HTML
                 } else if (type === 'error') {
                     messageDiv.classList.add('error-message');
-                    innerContentDiv.textContent = text; // Display error text directly (plain text)
+                    innerContentDiv.textContent = text; // Error message is plain text
                 } else {
-                    // Regular bot response: now always assume HTML. Parsers should ensure content is HTML or safe plain text.
-                    innerContentDiv.innerHTML = text; 
+                    // Regular bot response: use isHTML flag
+                    if (isHTML) {
+                        innerContentDiv.innerHTML = text; // Render HTML
+                    } else {
+                        innerContentDiv.textContent = text; // Render plain text
+                    }
                 }
 
-                // Add copy button for bot messages that are not loading
+                // Add copy button for bot messages that are not loading - Made by Musa Abiodun and H.A.P.E. Team
                 if (type !== 'loading') {
                     const copyBtn = document.createElement('button');
                     copyBtn.textContent = 'Copy';
                     copyBtn.classList.add('copy-btn');
-                    // Get the plain text content from the innerContentDiv for copying
-                    const textToCopy = innerContentDiv.textContent; 
-                    copyBtn.onclick = () => copyToClipboard(textToCopy);
-                    messageDiv.appendChild(copyBtn); // Add button to the message div
+                    
+                    // Get the plain text content from the innerContentDiv for copying.
+                    copyBtn.onclick = () => copyToClipboard(innerContentDiv.textContent);
+                    messageDiv.appendChild(copyBtn); // Append the button to the message div
                 }
             }
             
-            messageDiv.prepend(innerContentDiv); // Add content first
+            messageDiv.prepend(innerContentDiv);
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-
         /**
-         * Safely calculates a mathematical expression.
+         * Safely calculates a mathematical expression to prevent code injection.
          * @param {string} expression The mathematical expression to calculate.
          * @returns {number} The result of the calculation.
          * @throws {Error} If the expression contains invalid characters or cannot be evaluated.
+         * Made by Musa Abiodun and H.A.P.E. Team
          */
         function safeCalculate(expression) {
+            // Basic validation: allow only numbers, operators (+, -, *, /, ., parentheses), and spaces.
             if (!/^[0-9+\-*/.\s()]+$/.test(expression)) {
                 throw new Error('Invalid characters in calculation. Only numbers and basic operators are allowed.');
             }
             try {
+                // Using the Function constructor is safer than global eval() as it runs in its own scope.
                 return new Function('return ' + expression)();
             } catch (e) {
                 throw new Error('Could not evaluate expression. Please check syntax.');
@@ -466,9 +589,10 @@
         }
 
         /**
-         * Formats the raw AI response text into HTML with paragraphs, lists, and bolding.
+         * Formats raw AI response text (Markdown-like) into HTML with paragraphs, lists, and bolding.
          * @param {string} rawText The raw text response from the AI API.
          * @returns {string} The formatted HTML string.
+         * Made by Musa Abiodun and H.A.P.E. Team
          */
         function formatAiResponse(rawText) {
             let processedText = rawText.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -509,8 +633,7 @@
             return htmlOutput.join('');
         }
 
-        // --- API Response Parsers ---
-        // Functions to extract content from different API response structures
+        // --- API Response Parsers for giftedtech.web.id --- Made by Musa Abiodun and H.A.P.E. Team
         const parseGiftedTechJoke = (data) => {
             if (data.result && data.result.setup && data.result.punchline) {
                 return `${data.result.setup} -- ${data.result.punchline}`;
@@ -520,6 +643,11 @@
             return `Unexpected joke format from GiftedTech. Raw: ${JSON.stringify(data)}`;
         };
         const parseGiftedTechQuote = (data) => {
+            // Check if data.result is directly the quote string
+            if (typeof data.result === 'string') {
+                return data.result;
+            }
+            // Otherwise, check for quote and author properties
             if (data.result && data.result.quote && data.result.author) {
                 return `"${data.result.quote}" - ${data.result.author}`;
             }
@@ -531,11 +659,49 @@
         const parseGiftedTechGratitude = (data) => data.result && data.result.gratitude ? data.result.gratitude : `Unexpected gratitude quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
         const parseGiftedTechFancy = (data) => data.fancyText ? data.fancyText : `Unexpected fancy text format from GiftedTech. Raw: ${JSON.stringify(data)}`;
 
-        const parseDavidCyrilTechFact = (data) => data.fact ? data.fact : `Unexpected fact format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
-        const parseDavidCyrilTechPickupline = (data) => data.pickupline ? data.pickupline : `Unexpected pickupline format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
-        const parseDavidCyrilTechAltQuote = (data) => data.quote ? data.quote : `Unexpected quotes format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        // --- API Response Parsers for apis.davidcyriltech.my.id --- Made by Musa Abiodun and H.A.P.E. Team
+        const parseDavidCyrilTechFact = (data) => {
+            if (data.response && data.response.fact) {
+                return data.response.fact;
+            }
+            if (data.fact) {
+                return data.fact;
+            }
+            return `Unexpected fact format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseDavidCyrilTechPickupline = (data) => {
+            if (data.response && data.response.pickupline) {
+                return data.response.pickupline;
+            }
+            if (data.pickupline) {
+                return data.pickupline;
+            }
+            return `Unexpected pickupline format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseDavidCyrilTechAltQuote = (data) => {
+            // Check if the quote is nested under data.response
+            if (data.response && data.response.quote) {
+                const author = data.response.author ? `- ${data.response.author}` : '';
+                return `"${data.response.quote}" ${author}`;
+            }
+            // Fallback to checking data.quote directly if the above fails (for consistency with other APIs)
+            if (data.quote) {
+                return `"${data.quote}"`;
+            }
+            return `Unexpected quotes format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        };
         
+        // NOTE: parseDavidCyrilTechTechNews is no longer used for /technews command, but kept for completeness
         const parseDavidCyrilTechTechNews = (data) => {
+            // First check for news array within a 'response' object
+            if (data.response && Array.isArray(data.response.news) && data.response.news.length > 0) {
+                return "Latest Tech News:<br>" + data.response.news.slice(0, 5).map((item, index) => `<strong>${index + 1}. ${item.title || item.headline || 'No title'}</strong>: <a href="${item.url}" target="_blank">${item.url || 'No URL'}</a>`).join('<br>');
+            }
+            // Now, check if a single news item is directly under 'result'
+            if (data.result && data.result.title && data.result.link) {
+                return `Latest Tech News:<br><strong>${data.result.title}</strong>: <a href="${data.result.link}" target="_blank">${data.result.link}</a>`;
+            }
+            // Fallback to checking for news array directly at the top level
             if (Array.isArray(data.news) && data.news.length > 0) {
                 return "Latest Tech News:<br>" + data.news.slice(0, 5).map((item, index) => `<strong>${index + 1}. ${item.title || item.headline || 'No title'}</strong>: <a href="${item.url}" target="_blank">${item.url || 'No URL'}</a>`).join('<br>');
             }
@@ -543,27 +709,30 @@
         };
 
         const parseDavidCyrilTechCurrencies = (data) => {
-            // Updated to correctly parse the currencies string and remove unwanted prefixes
-            if (data.currencies && typeof data.currencies === 'string') {
-                let currenciesString = data.currencies;
-                // Explicitly remove unwanted "creator", "success", "currencies" if they appear in the string
+            // First check for currencies string within a 'response' object
+            if (data.response && data.response.currencies && typeof data.response.currencies === 'string') {
+                let currenciesString = data.response.currencies;
                 currenciesString = currenciesString.replace(/creator:[\s\w]+,?\s*|success:(true|false),?\s*|currencies:[\s\w]+,?\s*/gi, '').trim();
-
-                const currencyCodes = currenciesString.split(',').map(code => code.trim()).filter(code => code); // Filter empty strings
-                const displayLimit = 20; // Show first 20 for brevity in chat
+                const currencyCodes = currenciesString.split(',').map(code => code.trim()).filter(code => code);
+                const displayLimit = 20;
                 const currenciesHtml = currencyCodes.slice(0, displayLimit).map(code => `<strong>${code}</strong>`).join(', ');
-                
                 if (currenciesHtml) {
                     return `Available Currencies (partial list):<br>${currenciesHtml}<br><em>(For full list, use their API directly.)</em>`;
                 }
             }
-            // If data.currencies is not a string, or parsing failed, return generic error message
+            // Fallback to checking for currencies string directly at the top level
+            if (data.currencies && typeof data.currencies === 'object' && Object.keys(data.currencies).length > 0) { // Changed to object check based on previous correction
+                 const currenciesList = Object.entries(data.currencies).slice(0, 20).map(([code, name]) => `<strong>${code}</strong>: ${name}`).join('<br>');
+                 if (currenciesList) {
+                     return `Available Currencies (partial list):<br>${currenciesList}<br><em>(For full list, use their API directly.)</em>`;
+                 }
+            }
             return `Could not retrieve currencies or unexpected format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
         };
 
         const parseDavidCyrilTechCurrencyConvert = (data, userQuery) => {
-            // Attempt to extract details from user query as fallback for display if API response is minimal
-            const match = userQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-Z]{3})/i); 
+            // This parser seems to handle its specific structure well, keeping as is.
+            const match = userQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-zA-Z]{3})/i);
             let amount = data.amount || (match ? parseFloat(match[1]) : 'N/A');
             let from = data.from || (match ? match[2].toUpperCase() : 'N/A');
             let to = data.to || (match ? match[3].toUpperCase() : 'N/A');
@@ -574,6 +743,12 @@
             return `Could not perform currency conversion. Response: ${JSON.stringify(data)}`;
         };
 
+        /**
+         * Parses the AI response structure, primarily for Gemini API, and formats it.
+         * @param {Object} data - The raw data object from the AI API response.
+         * @returns {string} The formatted AI response as an HTML string.
+         * Made by Musa Abiodun and H.A.P.E. Team
+         */
         const parseAiResponse = (data) => {
             if (data.candidates && data.candidates.length > 0 &&
                 data.candidates[0].content && data.candidates[0].content.parts &&
@@ -587,15 +762,27 @@
 
 
         /**
-         * Generic function to fetch content from an API with fallback.
+         * Generic function to fetch content from an API with fallback mechanism.
          * Attempts primary API first, then falls back to secondary if primary fails.
          * @param {Object} primaryConfig Configuration for the primary API: { endpoint, apiKey, queryParam, parser }
          * @param {Object} [secondaryConfig] Configuration for the secondary API: { endpoint, apiKey, queryParam, parser }
-         * @param {string} loadingText Text to display while fetching.
+         * @param {string} loadingText The text to display while fetching. Emojis added by Musa Abiodun and H.A.P.E. Team.
          * @param {string} [userQuery=''] The actual query text from the user (for parsers that need it).
+         * @returns {Promise<void>}
+         * Made by Musa Abiodun and H.A.P.E. Team
          */
         async function fetchAPIContentWithFallback(primaryConfig, secondaryConfig, loadingText, userQuery = '') {
-            displayMessage('bot', `${loadingText}<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`, 'loading');
+            // Store a direct reference to the loading message div that will be created
+            const loadingMessageDiv = document.createElement("div");
+            loadingMessageDiv.classList.add('chat-message', 'loading-message'); // Ensure it has both classes for styling
+            const innerLoadingContentDiv = document.createElement('div');
+            innerLoadingContentDiv.classList.add('message-content');
+            innerLoadingContentDiv.innerHTML = `${loadingText}<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`;
+            loadingMessageDiv.appendChild(innerLoadingContentDiv);
+            
+            chatContainer.appendChild(loadingMessageDiv); // Add it to the chat container
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to show it
+
             let finalContentText = "Sorry, I couldn't fetch content right now. Please try again later. 😔";
             let fetchedSuccessfully = false;
 
@@ -614,24 +801,15 @@
 
                 // Add query parameter if defined
                 if (config.queryParam && userQuery) {
-                    // For currency converter, userQuery is already the formatted part like "amount=100&from=USD&to=EUR"
-                    if (config.endpoint === DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT) {
-                         url += `?${userQuery}`; // Append directly as it's already formatted
-                         if (apiKey) url += `&apikey=${apiKey}`; // Add API key after if present
-                    } else {
-                        queryParams.append(config.queryParam, encodeURIComponent(userQuery));
-                    }
-                } else if (config.endpoint === DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT && apiKey) {
-                     url += `?apikey=${apiKey}`; // If no query, but there is API key
+                    queryParams.append(config.queryParam, encodeURIComponent(userQuery));
                 }
                 
-                // Construct full URL if queryParams were used
-                if (queryParams.toString() && config.endpoint !== DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT) {
+                // Construct full URL
+                if (queryParams.toString()) {
                     url += `?${queryParams.toString()}`;
                 }
 
-
-                // Decide between POST (for Gemini) and GET
+                // Decide between POST (for Gemini) and GET - Made by Musa Abiodun and H.A.P.E. Team
                 let fetchOptions = {};
                 if (config.endpoint === GEMINI_API_ENDPOINT || config.endpoint === DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT) {
                     fetchOptions = {
@@ -660,7 +838,7 @@
             } catch (primaryError) {
                 console.warn(primaryError.message);
                 if (secondaryConfig) {
-                    displayMessage('bot', `Primary source failed. Attempting fallback...<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`, 'loading');
+                    // No need to display another loading message, the existing one will update
                     try {
                         finalContentText = await fetchAndParse(secondaryConfig, false);
                         fetchedSuccessfully = true;
@@ -673,51 +851,55 @@
                 }
 
             } finally {
-                const messages = chatContainer.querySelectorAll('.loading-message');
-                if (messages.length > 0) {
-                    chatContainer.removeChild(messages[messages.length - 1]);
+                // Ensure the specific loading message created at the start is removed
+                if (chatContainer.contains(loadingMessageDiv)) {
+                    chatContainer.removeChild(loadingMessageDiv);
                 }
-                displayMessage('bot', finalContentText, fetchedSuccessfully ? 'bot' : 'error');
+                // Display the final result or error message - Made by Musa Abiodun and H.A.P.E. Team
+                displayMessage('bot', finalContentText, fetchedSuccessfully ? 'bot' : 'error', true); // Ensure HTML formatting for results
             }
         }
 
+        // Predefined chatbot commands and their responses - Made by Musa Abiodun and H.A.P.E. Team
         const commands = [
             { command: "help", response: `
-                <p>⚡ Commands Protocol Activated ⚡</p>
-                <p>Dive into the future with these functionalities:</p>
-                <ul>
-                    <li><strong>/help</strong>: Access this data stream. 📚</li>
-                    <li><strong>/about</strong>: Unveil bot specifications. 🤖</li>
-                    <li><strong>/dev</strong>: Developer credits log. 💻</li>
-                    <li><strong>/info</strong>: General system intelligence.💡</li>
-                    <li><strong>/socials</strong>: Connect on our networks. 🔗</li>
-                    <li><strong>/joke</strong>: Retrieve a random humor byte. 😂</li>
-                    <li><strong>/facts</strong>: Discover an interesting data point. 🤯</li>
-                    <li><strong>/pickuplines</strong>: Access a charm algorithm. 😉</li>
-                    <li><strong>/quotes</strong>: Download an inspirational data packet. 💡</li>
-                    <li><strong>/altquotes</strong>: Retrieve an alternative inspirational data packet. 🌟</li>
-                    <li><strong>/technews</strong>: Get the latest tech headlines. 📰</li>
-                    <li><strong>/advice</strong>: Access a wisdom algorithm. 🧠</li>
-                    <li><strong>/love</strong>: Generate a sentiment burst. ❤️</li>
-                    <li><strong>/friend</strong>: Process a camaraderie encryption. 🤝</li>
-                    <li><strong>/gratitude</strong>: Synthesize an appreciation sequence. 🙏</li>
-                    <li><strong>/fancy [text]</strong>: Encode text with stylistic algorithms (v1). ✨ <em>(In Development)</em></li>
-                    <li><strong>/fancy2 [text]</strong>: Encode text with stylistic algorithms (v2). 🌟 <em>(In Development)</em></li>
-                    <li><strong>/currencies</strong>: List supported currency codes. 💲</li>
-                    <li><strong>/convert [amount] [from] [to]</strong>: Convert currency values (e.g., /convert 10 USD to EUR). 💱</li>
-                    <li><strong>/quest1</strong>: Engage in coding exploration. 🌐</li>
-                    <li><strong>/quest2</strong>: Initiate advanced programming protocols. 🚀</li>
-                    <li><strong>/update</strong>: Check for system upgrades. ⬆️</li>
-                    <li><strong>/theme</strong>: Adjust interface schematics. 🌈</li>
-                    <li><strong>/reset</strong>: Reinitialize core processes. 🔄</li>
-                    <li><strong>/no.game</strong>: Current recreational modules inactive. 🚫</li>
-                    <li><strong>/ping</strong>: Network latency test. 📡</li>
-                    <li><strong>/uptime</strong>: Display operational metrics. ⏰</li>
-                    <li><strong>/api</strong>: Access API interface documentation. 📈</li>
-                    <li><strong>/calculate [expression]</strong>: Compute complex algorithms. 🧮</li>
-                    <li><strong>/clear</strong>: Purge chat log. 🗑️</li>
-                </ul>
-                <p><em>Syntax: Input commands with a preceding slash '/'.</em></p>
+                <div class="help-menu-container">
+                    <h2>⚡ Commands Protocol Activated ⚡</h2>
+                    <p>Dive into the future with these functionalities:</p>
+                    <ul>
+                        <li><strong>/help</strong>: Access this data stream. 📚</li>
+                        <li><strong>/about</strong>: Unveil bot specifications. 🤖</li>
+                        <li><strong>/dev</strong>: Developer credits log. 💻</li>
+                        <li><strong>/info</strong>: General system intelligence. 💡</li>
+                        <li><strong>/socials</strong>: Connect on our networks. 🔗</li>
+                        <li><strong>/joke</strong>: Retrieve a random humor byte. 😂</li>
+                        <li><strong>/facts</strong>: Discover an interesting data point. 🤯</li>
+                        <li><strong>/pickuplines</strong>: Access a charm algorithm. 😉</li>
+                        <li><strong>/quotes</strong>: Download an inspirational data packet. 💡</li>
+                        <li><strong>/altquotes</strong>: Retrieve an alternative inspirational data packet. 🌟</li>
+                        <li><strong>/technews</strong>: Get the latest tech headlines. 📰</li>
+                        <li><strong>/advice</strong>: Access a wisdom algorithm. 🧠</li>
+                        <li><strong>/love</strong>: Generate a sentiment burst. ❤️</li>
+                        <li><strong>/friend</strong>: Process a camaraderie encryption. 🤝</li>
+                        <li><strong>/gratitude</strong>: Synthesize an appreciation sequence. 🙏</li>
+                        <li><strong>/fancy [text]</strong>: Encode text with stylistic algorithms (v1). ✨ <em>(In Development)</em></li>
+                        <li><strong>/fancy2 [text]</strong>: Encode text with stylistic algorithms (v2). 🌟 <em>(In Development)</em></li>
+                        <li><strong>/currencies</strong>: List supported currency codes. 💲</li>
+                        <li><strong>/convert [amount] [from] [to]</strong>: Convert currency values (e.g., /convert 10 USD to EUR). 💱</li>
+                        <li><strong>/quest1</strong>: Engage in coding exploration. 🌐</li>
+                        <li><strong>/quest2</strong>: Initiate advanced programming protocols. 🚀</li>
+                        <li><strong>/update</strong>: Check for system upgrades. ⬆️</li>
+                        <li><strong>/theme</strong>: Adjust interface schematics. 🌈</li>
+                        <li><strong>/reset</strong>: Reinitialize core processes. 🔄</li>
+                        <li><strong>/no.game</strong>: Current recreational modules inactive. 🚫</li>
+                        <li><strong>/ping</strong>: Network latency test. 📡</li>
+                        <li><strong>/uptime</strong>: Display operational metrics. ⏰</li>
+                        <li><strong>/api</strong>: Access API interface documentation. 📈</li>
+                        <li><strong>/calculate [expression]</strong>: Compute complex algorithms. 🧮</li>
+                        <li><strong>/clear</strong>: Purge chat log. 🗑️</li>
+                    </ul>
+                    <p class="syntax-note"><em>Syntax: Input commands with a preceding slash '/'.</em></p>
+                </div>
             ` },
             { command: "about", response: "Switch 1.0 is a multipurpose online bot still in development with few inbuilt commands and integrated APIs. 🤖" },
             { command: "hi", response: "How are you doing today 😊" },
@@ -744,7 +926,7 @@
             { command: "update", response: "We're constantly updating and improving our chatbot. 🚀" },
             { command: "theme", response: "Our theme is to provide a user-friendly and interactive experience. 🌈" },
             { command: "reset", response: "Chatbot has been reset. 🔄" },
-            { command: "no.game", response: "No game available at the moment. 😔" },
+            { command: "no.game", response: "No game available at the moment.😔" },
             { command: "ping", response: "Pong! 🏓" },
             { command: "uptime", response: "Uptime: 24/7 ⏰" },
             { command: "api", response: "Our API is used to provide various services and functionalities. 📈" },
@@ -771,195 +953,192 @@
             },
         ];
 
+        // Event listener for the Send button click - Made by Musa Abiodun and H.A.P.E. Team
         sendBtn.addEventListener("click", async () => {
-            try { // START of added try-catch block for the entire click handler
-                const userInputValue = userInput.value.trim();
-                // Provide feedback if input is empty
-                if (userInputValue === "") {
-                    displayMessage('bot', "Please type something!", 'error');
-                    return; 
-                }
+            const userInputValue = userInput.value.trim();
+            if (userInputValue === "") return; // Do nothing if input is empty
 
-                displayMessage('user', userInputValue);
-                userInput.value = ""; // Clear input immediately
+            displayMessage('user', userInputValue); // Display user's message
+            userInput.value = ""; // Clear input field
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
 
-                const lowerCaseInput = userInputValue.toLowerCase();
-                let commandHandled = false;
+            const lowerCaseInput = userInputValue.toLowerCase();
+            let commandHandled = false; // Flag to track if a command was processed
 
-                // --- Explicit Commands (starting with '/') ---
-                if (lowerCaseInput.startsWith('/')) {
-                    // Commands with GiftedTech as Primary, DavidCyrilTech as Secondary
-                    if (lowerCaseInput === "/joke") {
+            // --- Explicit Commands (starting with '/') --- Made by Musa Abiodun and H.A.P.E. Team
+            if (lowerCaseInput.startsWith('/')) {
+                // Commands using GiftedTech API (primary) with DavidCyrilTech API (secondary/fallback)
+                if (lowerCaseInput === "/joke") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_JOKE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
+                        { endpoint: DAVIDCYRILTECH_JOKE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
+                        "Fetching humor byte 😂"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/quotes") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_QUOTES_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechQuote },
+                        { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
+                        "Downloading inspirational data 💡"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/advice") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_ADVICE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechAdvice },
+                        null,
+                        "Accessing wisdom algorithm 🧠"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/love") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_LOVE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechLove },
+                        null,
+                        "Generating sentiment burst ❤️"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/friend") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_FRIENDSHIP_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechFriendship },
+                        null,
+                        "Processing camaraderie encryption 🤝"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/gratitude") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GIFTEDTECH_GRATITUDE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechGratitude },
+                        null,
+                        "Synthesizing appreciation sequence 🙏"
+                    );
+                    commandHandled = true;
+                } 
+                // New DavidCyrilTech commands (as primary, no fallback for now)
+                else if (lowerCaseInput === "/facts") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: DAVIDCYRILTECH_FACTS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechFact },
+                        null,
+                        "Discovering an interesting data point 🤯"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/pickuplines") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechPickupline },
+                        null,
+                        "Accessing a charm algorithm 😉"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/altquotes") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
+                        null,
+                        "Retrieving an alternative inspirational data packet 🌟"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/technews") {
+                    // Changed to fetch tech news from AI endpoint - Made by Musa Abiodun and H.A.P.E. Team
+                    await fetchAPIContentWithFallback(
+                        { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
+                        { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
+                        "Getting the latest tech headlines from AI 📰", // Updated loading message with emoji
+                        "Summarize the top 5 latest technology news headlines and provide a very brief description for each." // Prompt for the AI
+                    );
+                    // Add analysis after displaying tech news
+                    displayMessage('bot', "There you go! Keeping up with the latest in tech can be quite exciting, don't you think? What caught your eye?", 'bot');
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/currencies") {
+                    await fetchAPIContentWithFallback(
+                        { endpoint: DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechCurrencies },
+                        null,
+                        "Listing supported currency codes 💲"
+                    );
+                    commandHandled = true;
+                } else if (lowerCaseInput.startsWith("/convert")) {
+                    const convertQuery = userInputValue.substring("/convert".length).trim();
+                    const match = convertQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-zA-Z]{3})/i);
+                    if (match) {
+                        const amount = match[1];
+                        const from = match[2].toUpperCase();
+                        const to = match[3].toUpperCase();
                         await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_JOKE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
-                            { endpoint: DAVIDCYRILTECH_JOKE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke }, // Reusing giftedtech parser for consistency if same structure
-                            "Fetching humor byte"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/quotes") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_QUOTES_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechQuote },
-                            { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
-                            "Downloading inspirational data"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/advice") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_ADVICE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechAdvice },
-                            null, // No current fallback specified for advice
-                            "Accessing wisdom algorithm"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/love") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_LOVE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechLove },
-                            null, // No current fallback specified for love
-                            "Generating sentiment burst"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/friend") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_FRIENDSHIP_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechFriendship },
-                            null, // No current fallback specified for friendship
-                            "Processing camaraderie encryption"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/gratitude") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_GRATITUDE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechGratitude },
-                            null, // No current fallback specified for gratitude
-                            "Synthesizing appreciation sequence"
-                        );
-                        commandHandled = true;
-                    } 
-                    // New DavidCyrilTech commands (as primary, no fallback for now)
-                    else if (lowerCaseInput === "/facts") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: DAVIDCYRILTECH_FACTS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechFact },
+                            { endpoint: DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'amount', parser: parseDavidCyrilTechCurrencyConvert },
                             null,
-                            "Discovering an interesting data point"
+                            "Converting currency values 💱",
+                            `amount=${amount}&from=${from}&to=${to}`
                         );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/pickuplines") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechPickupline },
-                            null,
-                            "Accessing a charm algorithm"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/altquotes") { // Explicit new command
-                        await fetchAPIContentWithFallback(
-                            { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
-                            null,
-                            "Retrieving an alternative inspirational data packet"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/technews") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechTechNews },
-                            null,
-                            "Getting the latest tech headlines"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/currencies") {
-                        await fetchAPIContentWithFallback(
-                            { endpoint: DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechCurrencies },
-                            null,
-                            "Listing supported currency codes"
-                        );
-                        commandHandled = true;
-                    } else if (lowerCaseInput.startsWith("/convert")) {
-                        const convertQuery = userInputValue.substring("/convert".length).trim();
-                        const match = convertQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-zA-Z]{3})/i);
-                        if (match) {
-                            const amount = match[1];
-                            const from = match[2].toUpperCase();
-                            const to = match[3].toUpperCase();
-                            await fetchAPIContentWithFallback(
-                                { endpoint: DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'amount', parser: parseDavidCyrilTechCurrencyConvert },
-                                null,
-                                "Converting currency values",
-                                `amount=${amount}&from=${from}&to=${to}` // Pass full query string part
-                            );
-                        } else {
-                            displayMessage('bot', `Invalid /convert format. Use: /convert [amount] [from] to [to] (e.g., /convert 10 USD to EUR). 💱`, 'error');
-                        }
-                        commandHandled = true;
+                    } else {
+                        displayMessage('bot', `Invalid /convert format. Use: /convert [amount] [from] to [to] (e.g., /convert 10 USD to EUR). 💱`, 'error');
                     }
-                    // Commands that display "in development" (Fancy Text)
-                    else if (lowerCaseInput.startsWith("/fancy ")) {
-                        displayMessage('bot', "This command is currently in development. Please check back later! ✨");
-                        commandHandled = true;
-                    } else if (lowerCaseInput.startsWith("/fancy2 ")) {
-                        displayMessage('bot', "This command is currently in development. Please check back later! 🌟");
-                        commandHandled = true;
-                    } 
-                    // Other existing static commands
-                    else if (lowerCaseInput.startsWith("/calculate")) {
-                        try {
-                            const calculation = userInputValue.replace("/calculate ", "");
-                            const result = safeCalculate(calculation);
-                            displayMessage('bot', `Result: ${result} 🧮`);
-                        } catch (error) {
-                            displayMessage('bot', `Error: ${error.message} 🤔`, 'error');
-                        }
-                        commandHandled = true;
-                    } else if (lowerCaseInput === "/clear") {
-                        chatContainer.innerHTML = "";
-                        displayMessage('bot', `Chat log purged. Ready for new interactions! ✨`);
+                    commandHandled = true;
+                }
+                // Commands that are currently "in development" - Made by Musa Abiodun and H.A.P.E. Team
+                else if (lowerCaseInput.startsWith("/fancy ")) {
+                    displayMessage('bot', "This command is currently in development. Please check back later! ✨", 'bot', true);
+                    commandHandled = true;
+                } else if (lowerCaseInput.startsWith("/fancy2 ")) {
+                    displayMessage('bot', "This command is currently in development. Please check back later! 🌟", 'bot', true);
+                    commandHandled = true;
+                } 
+                // Other existing static commands - Made by Musa Abiodun and H.A.P.E. Team
+                else if (lowerCaseInput.startsWith("/calculate")) {
+                    try {
+                        const calculation = userInputValue.replace("/calculate ", "");
+                        const result = safeCalculate(calculation);
+                        displayMessage('bot', `Result: ${result} 🧮`, 'bot');
+                    } catch (error) {
+                        displayMessage('bot', `Error: ${error.message} 🤔`, 'error');
+                    }
+                    commandHandled = true;
+                } else if (lowerCaseInput === "/clear") {
+                    chatContainer.innerHTML = "";
+                    displayMessage('bot', `Chat log purged. Ready for new interactions! ✨`, 'bot');
+                    commandHandled = true;
+                } else {
+                    // Check other predefined commands (like help, about, dev, etc.) from the 'commands' array
+                    const commandName = lowerCaseInput.substring(1); 
+                    const command = commands.find((cmd) => cmd.command === commandName);
+                    if (command) {
+                        displayMessage(
+                            'bot',
+                            typeof command.response === "function" ? command.response() : command.response,
+                            'bot',
+                            true // Static commands provide HTML
+                        );
                         commandHandled = true;
                     } else {
-                        // Check other predefined commands (like help, about, dev, etc.)
-                        const commandName = lowerCaseInput.substring(1); 
-                        const command = commands.find((cmd) => cmd.command === commandName);
-                        if (command) {
-                            displayMessage(
-                                'bot',
-                                typeof command.response === "function" ? command.response() : command.response,
-                                'bot' 
-                            );
-                            commandHandled = true;
-                        } else {
-                            displayMessage('bot', `Sorry, I don't recognize the command '${userInputValue}'. Type /help for available commands. 😕`, 'error');
-                            commandHandled = true;
-                        }
+                        displayMessage('bot', `Sorry, I don't recognize the command '${userInputValue}'. Type /help for available commands. 😕`, 'error');
+                        commandHandled = true;
                     }
                 }
-                
-                // --- Default to AI Query if no explicit command was handled and not a greeting ---
-                if (!commandHandled) {
-                    // Check for general greetings
-                    if (lowerCaseInput.includes("hello") || lowerCaseInput.includes("hi") || lowerCaseInput.includes("hey")) {
-                        displayMessage('bot', `How are you doing today 😊`);
-                    } else {
-                        // Send to AI by default
-                        displayMessage('bot', `Thinking<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 🤔`, 'loading');
-                        
-                        try {
-                            // AI APIs (Gemini Primary, DavidCyrilTech AI Fallback)
-                            await fetchAPIContentWithFallback(
-                                { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
-                                { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
-                                "Thinking",
-                                userInputValue
-                            );
+            }
+            
+            // --- Default to AI Query if no explicit command was handled and not a greeting --- Made by Musa Abiodun and H.A.P.E. Team
+            if (!commandHandled) {
+                // Check for general greetings
+                if (lowerCaseInput.includes("hello") || lowerCaseInput.includes("hi") || lowerCaseInput.includes("hey")) {
+                    displayMessage('bot', `How are you doing today 😊`, 'bot');
+                } else {
+                    // Send to AI by default
+                    // The loading message is now created and appended by fetchAPIContentWithFallback for reliability
+                    try {
+                        // AI APIs (Gemini Primary, DavidCyrilTech AI Fallback)
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
+                            { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
+                            "Thinking... 🤔", // Updated loading message with emoji
+                            userInputValue
+                        );
 
-                        } catch (error) {
-                            console.error("Error with AI query:", error);
-                            // The fetchAPIContentWithFallback already handles display of error
-                            // So we don't need a displayMessage here unless it's a completely unhandled outer error
-                        }
+                    } catch (error) {
+                        console.error("Error with AI query:", error);
+                        // The fetchAPIContentWithFallback already handles display of error messages
                     }
                 }
-            } catch (e) { // END of added try-catch block
-                console.error("An unexpected error occurred in send button handler:", e);
-                displayMessage('bot', `An unexpected internal error occurred: ${e.message}. Please try again later or contact support.`, 'error');
             }
         });
 
+        // Event listener for Enter key press on the input field - Made by Musa Abiodun and H.A.P.E. Team
         userInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
-                sendBtn.click();
+                sendBtn.click(); // Trigger the send button click handler
             }
         });
     </script>
