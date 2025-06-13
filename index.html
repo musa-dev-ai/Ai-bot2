@@ -764,7 +764,7 @@
                 return formatAiResponse(data.candidates[0].content.parts[0].text);
             } else if (data.response && typeof data.response === 'string') {
                 return formatAiResponse(data.response);
-            } else if (typeof data.result === 'string') { // Added for GiftedTech OpenAI API
+            } else if (typeof data.result === 'string') { // Specifically for GiftedTech OpenAI API's direct string result
                 return formatAiResponse(data.result);
             }
             return `I received an empty or unreadable AI response. Raw: ${JSON.stringify(data)}`;
@@ -798,28 +798,29 @@
 
             const fetchAndParse = async (config, isPrimary) => {
                 let url = config.endpoint;
-                let fetchOptions = {};
                 const currentQueryParams = new URLSearchParams();
+                let fetchOptions = {};
 
-                // Add API key from config if available and not handled automatically by Canvas for Gemini
-                if (config.apiKey && config.endpoint !== GEMINI_API_ENDPOINT) {
-                    currentQueryParams.append('apikey', config.apiKey);
-                }
-                
-                // Determine method and body/query parameters based on endpoint type
+                // Special handling for the GiftedTech OpenAI endpoint as primary AI
                 if (config.endpoint === GIFTEDTECH_AI_PRIMARY_ENDPOINT) {
-                    // For the new GiftedTech OpenAI endpoint, use GET with 'q' query parameter
-                    currentQueryParams.append('q', encodeURIComponent(userQuery));
-                    fetchOptions.method = 'GET';
+                    currentQueryParams.append('apikey', GIFTEDTECH_API_KEY); // Explicitly uses 'gifted' API key
+                    currentQueryParams.append('q', encodeURIComponent(userQuery)); // User query appended as 'q' parameter
+                    fetchOptions.method = 'GET'; // This API uses GET
                 } else if (config.endpoint === GEMINI_API_ENDPOINT) {
-                    // For Google Gemini API, use POST with 'contents' body.
+                    // Google Gemini API (fallback AI) uses POST
                     // If a specific API key for Gemini is needed and not auto-injected, it would go here.
                     // For now, it relies on Canvas's injection or being an empty string.
+                    if (GEMINI_API_KEY) { // Only append if key is explicitly set (though Canvas injects)
+                       currentQueryParams.append('key', GEMINI_API_KEY);
+                    }
                     fetchOptions.method = 'POST';
                     fetchOptions.headers = { 'Content-Type': 'application/json' };
                     fetchOptions.body = JSON.stringify({ contents: [{ role: "user", parts: [{ text: userQuery }] }] });
                 } else {
-                    // All other general APIs: GET with 'queryParam' (if specified in config)
+                    // All other general APIs (GiftedTech non-AI, DavidCyrilTech non-AI)
+                    if (config.apiKey) { // For other APIs, use the apiKey from their specific config
+                        currentQueryParams.append('apikey', config.apiKey);
+                    }
                     if (config.queryParam && userQuery) {
                         currentQueryParams.append(config.queryParam, encodeURIComponent(userQuery));
                     }
@@ -894,7 +895,7 @@
                         <li><strong>/gratitude</strong>: Synthesize an appreciation sequence. 🙏</li>
                         <li><strong>/fancy [text]</strong>: Encode text with stylistic algorithms (v1). ✨ <em>(In Development)</em></li>
                         <li><strong>/fancy2 [text]</strong>: Encode text with stylistic algorithms (v2). 🌟 <em>(In Development)</em></li>
-                        <li><strong>/currencies</strong>: List supported currency codes. 💲</li>
+                        <li><strong>/currencies</strong>: List supported currency codes.💲</li>
                         <li><strong>/convert [amount] [from] [to]</strong>: Convert currency values (e.g., /convert 10 USD to EUR). 💱</li>
                         <li><strong>/quest1</strong>: Engage in coding exploration. 🌐</li>
                         <li><strong>/quest2</strong>: Initiate advanced programming protocols. 🚀</li>
@@ -1153,4 +1154,5 @@
     </script>
 </body>
 </html>
+
 
