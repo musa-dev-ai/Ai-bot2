@@ -475,7 +475,8 @@
         const DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/technews"; // This API is now deprecated for /technews command
         const DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/convert";
         const DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/currencies";
-        const DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini"; // For /ai fallback
+        // DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT is removed from AI calls as it was causing 404s and is unreliable for this purpose.
+        const DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini"; // Kept for reference but not used for AI primary/fallback
 
         // --- API Keys Configuration --- Made by Musa Abiodun and H.A.P.E. Team
         const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs
@@ -838,13 +839,13 @@
             } catch (primaryError) {
                 console.warn(primaryError.message);
                 if (secondaryConfig) {
-                    // No need to display another loading message, the existing one will update
+                    // Only attempt secondary if it's explicitly provided and valid
                     try {
                         finalContentText = await fetchAndParse(secondaryConfig, false);
                         fetchedSuccessfully = true;
                     } catch (secondaryError) {
                         console.error(secondaryError.message);
-                        finalContentText = `Both primary and fallback APIs failed. Error: ${secondaryError.message} 😔`;
+                        finalContentText = `Both primary and fallback APIs failed. Error: ${primaryError.message}. Secondary failed: ${secondaryError.message} 😔`;
                     }
                 } else {
                     finalContentText = `Failed to fetch content. Error: ${primaryError.message} 😔`;
@@ -971,42 +972,42 @@
                 if (lowerCaseInput === "/joke") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_JOKE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
-                        { endpoint: DAVIDCYRILTECH_JOKE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
+                        null, // Removed fallback as it was causing issues
                         "Fetching humor byte 😂"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/quotes") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_QUOTES_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechQuote },
-                        { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
+                        null, // Removed fallback as it was causing issues
                         "Downloading inspirational data 💡"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/advice") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_ADVICE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechAdvice },
-                        null,
+                        null, 
                         "Accessing wisdom algorithm 🧠"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/love") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_LOVE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechLove },
-                        null,
+                        null, 
                         "Generating sentiment burst ❤️"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/friend") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_FRIENDSHIP_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechFriendship },
-                        null,
+                        null, 
                         "Processing camaraderie encryption 🤝"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/gratitude") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_GRATITUDE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechGratitude },
-                        null,
+                        null, 
                         "Synthesizing appreciation sequence 🙏"
                     );
                     commandHandled = true;
@@ -1034,15 +1035,14 @@
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/technews") {
-                    // Changed to fetch tech news from AI endpoint - Made by Musa Abiodun and H.A.P.E. Team
+                    // Now exclusively fetches tech news from AI endpoint - Made by Musa Abiodun and H.A.P.E. Team
                     await fetchAPIContentWithFallback(
                         { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
-                        { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
-                        "Getting the latest tech headlines from AI 📰", // Updated loading message with emoji
-                        "Summarize the top 5 latest technology news headlines and provide a very brief description for each." // Prompt for the AI
+                        null, // Removed fallback for AI tech news
+                        "Getting the latest tech headlines from AI 📰"
                     );
-                    // Add analysis after displaying tech news
-                    displayMessage('bot', "There you go! Keeping up with the latest in tech can be quite exciting, don't you think? What caught your eye?", 'bot');
+                    // Add analysis after displaying tech news - Made by Musa Abiodun and H.A.P.E. Team
+                    displayMessage('bot', "There you go! Keeping up with the latest in tech can be quite exciting, don't you think? What caught your eye? ✨", 'bot');
                     commandHandled = true;
                 } else if (lowerCaseInput === "/currencies") {
                     await fetchAPIContentWithFallback(
@@ -1122,8 +1122,8 @@
                         // AI APIs (Gemini Primary, DavidCyrilTech AI Fallback)
                         await fetchAPIContentWithFallback(
                             { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
-                            { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
-                            "Thinking... 🤔", // Updated loading message with emoji
+                            null, // Removed AI fallback
+                            "Thinking... 🤔", 
                             userInputValue
                         );
 
