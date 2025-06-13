@@ -455,7 +455,7 @@
         const sendBtn = document.getElementById('send-btn');
 
         // --- API Endpoints Configuration --- Made by Musa Abiodun and H.A.P.E. Team
-        // Google Gemini API (for AI responses)
+        // Google Gemini API (now secondary fallback for AI)
         const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"; 
         
         // Primary API set: giftedtech.web.id - Made by Musa Abiodun and H.A.P.E. Team
@@ -468,20 +468,20 @@
         const GIFTEDTECH_FANCY_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancy";
         const GIFTEDTECH_FANCYV2_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancyv2";
 
-        // Secondary API set: apis.davidcyriltech.my.id - Made by Musa Abiodun and H.A.P.E. Team
+        // Secondary API set: apis.davidcyriltech.my.id (used for facts, pickuplines, altquotes, currencies, convert)
         const DAVIDCYRILTECH_FACTS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/fact";
         const DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT = "https://apis.davidcyriltech.my.id/pickupline";
-        const DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/quotes"; // Note: User requested as /altquotes
-        const DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/technews"; // This API is now deprecated for /technews command
+        const DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/quotes";
         const DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/convert";
         const DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/currencies";
-        // DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT is removed from AI calls as it was causing 404s and is unreliable for this purpose.
-        const DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini"; // Kept for reference but not used for AI primary/fallback
+        
+        // New primary AI endpoint as requested by the user
+        const GIFTEDTECH_AI_PRIMARY_ENDPOINT = "https://api.giftedtech.my.id/api/ai/openai";
 
         // --- API Keys Configuration --- Made by Musa Abiodun and H.A.P.E. Team
         const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs
-        const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs
-        const DAVIDCYRILTECH_API_KEY = ""; // NOTE: Set this key if required by davidcyriltech.my.id APIs
+        const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs (and now GIFTEDTECH_AI_PRIMARY_ENDPOINT)
+        const DAVIDCYRILTECH_API_KEY = ""; // NOTE: Set this key if required by other davidcyriltech.my.id APIs
 
         /**
          * Utility function to copy text to clipboard and show feedback.
@@ -638,6 +638,8 @@
         const parseGiftedTechJoke = (data) => {
             if (data.result && data.result.setup && data.result.punchline) {
                 return `${data.result.setup} -- ${data.result.punchline}`;
+            } else if (typeof data.result === 'string') { // Added to handle direct string in result
+                return data.result;
             } else if (data.result && data.result.joke) {
                 return data.result.joke;
             }
@@ -654,10 +656,30 @@
             }
             return `Unexpected quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
         };
-        const parseGiftedTechAdvice = (data) => data.result && data.result.advice ? data.result.advice : `Unexpected advice format from GiftedTech. Raw: ${JSON.stringify(data)}`;
-        const parseGiftedTechLove = (data) => data.result && data.result.love ? data.result.love : `Unexpected love quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
-        const parseGiftedTechFriendship = (data) => data.result && data.result.friendship ? data.result.friendship : `Unexpected friendship quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
-        const parseGiftedTechGratitude = (data) => data.result && data.result.gratitude ? data.result.gratitude : `Unexpected gratitude quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        const parseGiftedTechAdvice = (data) => {
+            if (typeof data.result === 'string') { // Added to handle direct string in result
+                return data.result;
+            }
+            return data.result && data.result.advice ? data.result.advice : `Unexpected advice format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseGiftedTechLove = (data) => {
+            if (typeof data.result === 'string') { // Added to handle direct string in result
+                return data.result;
+            }
+            return data.result && data.result.love ? data.result.love : `Unexpected love quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseGiftedTechFriendship = (data) => {
+            if (typeof data.result === 'string') { // Added to handle direct string in result
+                return data.result;
+            }
+            return data.result && data.result.friendship ? data.result.friendship : `Unexpected friendship quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseGiftedTechGratitude = (data) => {
+            if (typeof data.result === 'string') { // Added to handle direct string in result
+                return data.result;
+            }
+            return data.result && data.result.gratitude ? data.result.gratitude : `Unexpected gratitude quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
         const parseGiftedTechFancy = (data) => data.fancyText ? data.fancyText : `Unexpected fancy text format from GiftedTech. Raw: ${JSON.stringify(data)}`;
 
         // --- API Response Parsers for apis.davidcyriltech.my.id --- Made by Musa Abiodun and H.A.P.E. Team
@@ -692,22 +714,7 @@
             return `Unexpected quotes format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
         };
         
-        // NOTE: parseDavidCyrilTechTechNews is no longer used for /technews command, but kept for completeness
-        const parseDavidCyrilTechTechNews = (data) => {
-            // First check for news array within a 'response' object
-            if (data.response && Array.isArray(data.response.news) && data.response.news.length > 0) {
-                return "Latest Tech News:<br>" + data.response.news.slice(0, 5).map((item, index) => `<strong>${index + 1}. ${item.title || item.headline || 'No title'}</strong>: <a href="${item.url}" target="_blank">${item.url || 'No URL'}</a>`).join('<br>');
-            }
-            // Now, check if a single news item is directly under 'result'
-            if (data.result && data.result.title && data.result.link) {
-                return `Latest Tech News:<br><strong>${data.result.title}</strong>: <a href="${data.result.link}" target="_blank">${data.result.link}</a>`;
-            }
-            // Fallback to checking for news array directly at the top level
-            if (Array.isArray(data.news) && data.news.length > 0) {
-                return "Latest Tech News:<br>" + data.news.slice(0, 5).map((item, index) => `<strong>${index + 1}. ${item.title || item.headline || 'No title'}</strong>: <a href="${item.url}" target="_blank">${item.url || 'No URL'}</a>`).join('<br>');
-            }
-            return `Could not retrieve tech news from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
-        };
+        // parseDavidCyrilTechTechNews is now deprecated in favor of AI summary for /technews
 
         const parseDavidCyrilTechCurrencies = (data) => {
             // First check for currencies string within a 'response' object
@@ -732,7 +739,6 @@
         };
 
         const parseDavidCyrilTechCurrencyConvert = (data, userQuery) => {
-            // This parser seems to handle its specific structure well, keeping as is.
             const match = userQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-zA-Z]{3})/i);
             let amount = data.amount || (match ? parseFloat(match[1]) : 'N/A');
             let from = data.from || (match ? match[2].toUpperCase() : 'N/A');
@@ -745,7 +751,8 @@
         };
 
         /**
-         * Parses the AI response structure, primarily for Gemini API, and formats it.
+         * Parses the AI response structure and formats it.
+         * Added handling for `data.result` string from new GiftedTech OpenAI endpoint.
          * @param {Object} data - The raw data object from the AI API response.
          * @returns {string} The formatted AI response as an HTML string.
          * Made by Musa Abiodun and H.A.P.E. Team
@@ -755,8 +762,10 @@
                 data.candidates[0].content && data.candidates[0].content.parts &&
                 data.candidates[0].content.parts.length > 0) {
                 return formatAiResponse(data.candidates[0].content.parts[0].text);
-            } else if (data.response) { // Some AI APIs might just have a 'response' field
+            } else if (data.response && typeof data.response === 'string') {
                 return formatAiResponse(data.response);
+            } else if (typeof data.result === 'string') { // Added for GiftedTech OpenAI API
+                return formatAiResponse(data.result);
             }
             return `I received an empty or unreadable AI response. Raw: ${JSON.stringify(data)}`;
         };
@@ -789,37 +798,37 @@
 
             const fetchAndParse = async (config, isPrimary) => {
                 let url = config.endpoint;
-                let apiKey = config.apiKey;
-                let queryParams = new URLSearchParams();
-                
-                // Add API key if provided and not for Gemini (Canvas handles Gemini key)
-                if (apiKey && config.endpoint !== GEMINI_API_ENDPOINT) { 
-                    queryParams.append('apikey', apiKey);
-                } else if (config.endpoint === GEMINI_API_ENDPOINT && GEMINI_API_KEY) {
-                    // For Gemini, key is typically appended differently or handled by environment
-                    queryParams.append('key', GEMINI_API_KEY);
-                }
-
-                // Add query parameter if defined
-                if (config.queryParam && userQuery) {
-                    queryParams.append(config.queryParam, encodeURIComponent(userQuery));
-                }
-                
-                // Construct full URL
-                if (queryParams.toString()) {
-                    url += `?${queryParams.toString()}`;
-                }
-
-                // Decide between POST (for Gemini) and GET - Made by Musa Abiodun and H.A.P.E. Team
                 let fetchOptions = {};
-                if (config.endpoint === GEMINI_API_ENDPOINT || config.endpoint === DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT) {
-                    fetchOptions = {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: userQuery }] }] })
-                    };
+                const currentQueryParams = new URLSearchParams();
+
+                // Add API key from config if available and not handled automatically by Canvas for Gemini
+                if (config.apiKey && config.endpoint !== GEMINI_API_ENDPOINT) {
+                    currentQueryParams.append('apikey', config.apiKey);
+                }
+                
+                // Determine method and body/query parameters based on endpoint type
+                if (config.endpoint === GIFTEDTECH_AI_PRIMARY_ENDPOINT) {
+                    // For the new GiftedTech OpenAI endpoint, use GET with 'q' query parameter
+                    currentQueryParams.append('q', encodeURIComponent(userQuery));
+                    fetchOptions.method = 'GET';
+                } else if (config.endpoint === GEMINI_API_ENDPOINT) {
+                    // For Google Gemini API, use POST with 'contents' body.
+                    // If a specific API key for Gemini is needed and not auto-injected, it would go here.
+                    // For now, it relies on Canvas's injection or being an empty string.
+                    fetchOptions.method = 'POST';
+                    fetchOptions.headers = { 'Content-Type': 'application/json' };
+                    fetchOptions.body = JSON.stringify({ contents: [{ role: "user", parts: [{ text: userQuery }] }] });
                 } else {
-                    fetchOptions = { method: 'GET' };
+                    // All other general APIs: GET with 'queryParam' (if specified in config)
+                    if (config.queryParam && userQuery) {
+                        currentQueryParams.append(config.queryParam, encodeURIComponent(userQuery));
+                    }
+                    fetchOptions.method = 'GET';
+                }
+
+                // Append all collected query parameters to the URL
+                if (currentQueryParams.toString()) {
+                    url += `?${currentQueryParams.toString()}`;
                 }
 
                 const response = await fetch(url, fetchOptions);
@@ -972,14 +981,14 @@
                 if (lowerCaseInput === "/joke") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_JOKE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
-                        null, // Removed fallback as it was causing issues
+                        null, 
                         "Fetching humor byte 😂"
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/quotes") {
                     await fetchAPIContentWithFallback(
                         { endpoint: GIFTEDTECH_QUOTES_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechQuote },
-                        null, // Removed fallback as it was causing issues
+                        null, 
                         "Downloading inspirational data 💡"
                     );
                     commandHandled = true;
@@ -1012,7 +1021,7 @@
                     );
                     commandHandled = true;
                 } 
-                // New DavidCyrilTech commands (as primary, no fallback for now)
+                // DavidCyrilTech commands (as primary, no fallback for now)
                 else if (lowerCaseInput === "/facts") {
                     await fetchAPIContentWithFallback(
                         { endpoint: DAVIDCYRILTECH_FACTS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechFact },
@@ -1035,13 +1044,14 @@
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/technews") {
-                    // Now exclusively fetches tech news from AI endpoint - Made by Musa Abiodun and H.A.P.E. Team
+                    // Tech news now uses GIFTEDTECH_AI_PRIMARY_ENDPOINT as primary, Gemini as secondary
                     await fetchAPIContentWithFallback(
-                        { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
-                        null, // Removed fallback for AI tech news
-                        "Getting the latest tech headlines from AI 📰"
+                        { endpoint: GIFTEDTECH_AI_PRIMARY_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: 'q', parser: parseAiResponse },
+                        { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse }, // Gemini as fallback
+                        "Getting the latest tech headlines from AI 📰",
+                        "Summarize the top 5 latest technology news headlines and provide a very brief description for each." // Prompt for the AI
                     );
-                    // Add analysis after displaying tech news - Made by Musa Abiodun and H.A.P.E. Team
+                    // Add analysis after displaying tech news
                     displayMessage('bot', "There you go! Keeping up with the latest in tech can be quite exciting, don't you think? What caught your eye? ✨", 'bot');
                     commandHandled = true;
                 } else if (lowerCaseInput === "/currencies") {
@@ -1069,7 +1079,7 @@
                     }
                     commandHandled = true;
                 }
-                // Commands that are currently "in development" - Made by Musa Abiodun and H.A.P.E. Team
+                // Commands that are currently "in development"
                 else if (lowerCaseInput.startsWith("/fancy ")) {
                     displayMessage('bot', "This command is currently in development. Please check back later! ✨", 'bot', true);
                     commandHandled = true;
@@ -1077,7 +1087,7 @@
                     displayMessage('bot', "This command is currently in development. Please check back later! 🌟", 'bot', true);
                     commandHandled = true;
                 } 
-                // Other existing static commands - Made by Musa Abiodun and H.A.P.E. Team
+                // Other existing static commands
                 else if (lowerCaseInput.startsWith("/calculate")) {
                     try {
                         const calculation = userInputValue.replace("/calculate ", "");
@@ -1110,19 +1120,18 @@
                 }
             }
             
-            // --- Default to AI Query if no explicit command was handled and not a greeting --- Made by Musa Abiodun and H.A.P.E. Team
+            // --- Default to AI Query if no explicit command was handled and not a greeting ---
             if (!commandHandled) {
                 // Check for general greetings
                 if (lowerCaseInput.includes("hello") || lowerCaseInput.includes("hi") || lowerCaseInput.includes("hey")) {
                     displayMessage('bot', `How are you doing today 😊`, 'bot');
                 } else {
                     // Send to AI by default
-                    // The loading message is now created and appended by fetchAPIContentWithFallback for reliability
                     try {
-                        // AI APIs (Gemini Primary, DavidCyrilTech AI Fallback)
+                        // AI Queries now use GIFTEDTECH_AI_PRIMARY_ENDPOINT as primary, Gemini as secondary
                         await fetchAPIContentWithFallback(
-                            { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
-                            null, // Removed AI fallback
+                            { endpoint: GIFTEDTECH_AI_PRIMARY_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: 'q', parser: parseAiResponse },
+                            { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse }, // Gemini as fallback
                             "Thinking... 🤔", 
                             userInputValue
                         );
