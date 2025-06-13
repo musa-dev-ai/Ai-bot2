@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>🤖 Chatbot|Switch 1.0 ⚡</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         /* Global box-sizing for consistent layout calculations */
         *, *::before, *::after {
@@ -16,131 +17,279 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1d23;
+            font-family: 'Inter', sans-serif; /* Matching portfolio font */
+            background-color: #1a1d23; /* Primary background from portfolio */
             margin: 0;
             padding: 0;
-            /* Allow vertical scrolling on the body if content overflows */
             overflow-y: auto; 
             display: flex;
             flex-direction: column;
-            color: #fff; /* Ensure text is visible */
+            color: #e0e0e0; /* Default text color from portfolio */
         }
 
         h1 {
-            color: #fff;
+            color: #4CAF50; /* Highlight color from portfolio */
             text-align: center;
             font-size: 24px;
             margin-bottom: 10px;
-            padding-top: 20px; /* Add some padding at the top */
-            flex-shrink: 0; /* Prevent h1 from shrinking */
+            padding-top: 20px;
+            flex-shrink: 0;
+            /* Refined Neon effect for H1 */
+            filter: drop-shadow(0 0 5px rgba(76, 175, 80, 0.8)) drop-shadow(0 0 15px rgba(76, 175, 80, 0.4));
+            animation: pulse-h1 2s infinite alternate; /* Subtle pulse */
+        }
+
+        @keyframes pulse-h1 {
+            from { filter: drop-shadow(0 0 5px rgba(76, 175, 80, 0.8)) drop-shadow(0 0 15px rgba(76, 175, 80, 0.4)); }
+            to { filter: drop-shadow(0 0 8px rgba(76, 175, 80, 1)) drop-shadow(0 0 20px rgba(76, 175, 80, 0.6)); }
         }
 
         #chat-container {
-            /* Fixed height to move input field up */
-            height: 60vh; /* Adjust this value (e.g., 50vh, 70vh) to move it more or less */
-            width: 90%; /* Adjusted for better mobile view */
-            max-width: 800px; /* Max width for larger screens */
-            margin: 0 auto; /* Center horizontally, removed bottom margin */
+            height: 60vh;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            overflow-y: auto; /* This makes the chat content scrollable within its own container */
-            background-color: #1a1d23;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            border-radius: 10px; /* Unified border-radius */
+            overflow-y: auto;
+            background-color: #1a1d23; /* Matches body background */
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.1); /* Very subtle outer glow for container */
+            border-radius: 10px;
             display: flex;
-            flex-direction: column; /* Stack messages vertically */
+            flex-direction: column;
+            border: 1px solid rgba(76, 175, 80, 0.08); /* Even subtler border */
         }
 
-        #chat-container div {
-            padding: 10px;
-            border-bottom: 1px solid #2d3138;
-            color: #fff;
-            transform-style: preserve-3d;
-            transform: translateZ(0);
-            transition: transform 0.2s ease-in-out;
-            border-radius: 8px; /* Rounded corners for messages */
-            margin-bottom: 8px; /* Spacing between messages */
+        /* Base style for all messages */
+        .chat-message {
+            padding: 12px; 
+            border-radius: 10px; 
+            margin-bottom: 10px; 
+            max-width: 70%; 
+            word-wrap: break-word; 
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
+            display: flex; /* Use flex to control content and copy button */
+            flex-direction: column; 
+            position: relative; /* For copy feedback positioning */
         }
 
-        #chat-container div:last-child {
-            border-bottom: none; /* No border for the last message */
+        /* User message styles */
+        .user-message {
+            background-color: #4CAF50; /* Green from portfolio */
+            color: #ffffff;
+            align-self: flex-end; /* Align to the right */
+            border-bottom-right-radius: 2px; /* Small tail on bottom-right */
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.4); /* Subtle user message glow */
         }
 
-        #chat-container div:hover {
-            transform: translateZ(5px); /* Slightly less aggressive hover for chat messages */
+        /* Bot message styles */
+        .bot-message {
+            background-color: #2d3138; /* Secondary background from portfolio */
+            color: #e0e0e0;
+            align-self: flex-start; /* Align to the left */
+            border-bottom-left-radius: 2px; /* Small tail on bottom-left */
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.15); /* Subtle inner glow for bot message */
+        }
+        
+        /* Loading message styles */
+        .loading-message {
             background-color: #2d3138;
+            color: #a0a0a0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            animation: pulse-message 1.5s infinite ease-in-out alternate; /* Subtle pulse */
+        }
+        @keyframes pulse-message {
+            from { box-shadow: 0 0 3px rgba(76, 175, 80, 0.1); }
+            to { box-shadow: 0 0 8px rgba(76, 175, 80, 0.4); }
+        }
+
+        /* Error message styles */
+        .error-message {
+            background-color: #a02c2c; /* Slightly softer red for errors */
+            color: #ffffff;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 0 8px rgba(160, 44, 44, 0.6); /* Red glow for errors */
+        }
+
+        /* Hover effect for all message bubbles */
+        .chat-message:hover {
+            transform: translateY(-3px) scale(1.01); /* Lift and slight scale */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 20px rgba(76, 175, 80, 0.8); /* Stronger green glow on hover */
+        }
+        /* Specific hover for error messages to keep red glow */
+        .error-message:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 20px rgba(160, 44, 44, 0.8); 
+        }
+
+        /* Styling for the copy button */
+        .copy-btn {
+            background-color: #3e8e41; /* Darker green, subtle */
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75em; /* Smaller font */
+            cursor: pointer;
+            margin-top: 8px; /* Space from message text */
+            align-self: flex-end; /* Align copy button to the right within the message bubble */
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); /* Subtle glow */
+        }
+        .copy-btn:hover {
+            background-color: #4CAF50;
+            transform: translateY(-1px);
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6); /* More prominent glow on hover */
+        }
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Styling for the copied feedback message */
+        .copy-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            z-index: 1000;
+            opacity: 0;
+            animation: fadeOut 1.5s forwards;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%); }
+            100% { opacity: 0; transform: translate(-50%, -70px); } /* Fades out and moves up */
         }
 
         #input-area {
             padding: 20px;
-            background-color: #1a1d23;
-            border-top: 1px solid #2d3138;
+            background-color: #2d3138;
+            border-top: 1px solid #444;
             display: flex;
-            justify-content: center; /* Center the input elements */
+            justify-content: center;
             align-items: center;
-            gap: 15px; /* Space between input and button */
-            width: 90%; /* Match chat container width */
-            max-width: 800px; /* Match chat container max-width */
-            margin: 0 auto; /* Center horizontally */
-            border-radius: 0 0 10px 10px; /* Rounded bottom corners */
-            flex-shrink: 0; /* Ensures it doesn't shrink and stays at its natural height */
+            gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 0 0 10px 10px;
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.1); /* Subtle bottom glow */
         }
 
         #user-input {
-            flex: 1; /* Allows input to grow */
+            flex: 1;
             padding: 15px;
-            border: none;
+            border: 1px solid #444;
             border-radius: 10px;
             font-size: 18px;
-            background-color: #2d3138;
-            color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background-color: #1a1d23;
+            color: #e0e0e0;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Initial subtle shadow */
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #user-input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50, inset 0 0 5px rgba(76, 175, 80, 0.3); /* Neon border glow on focus */
         }
 
         #send-btn {
-            padding: 15px 25px; /* Adjusted padding for a better button size */
+            padding: 15px 25px;
             border: none;
             border-radius: 10px;
             background-color: #4CAF50;
             color: #fff;
             cursor: pointer;
             font-size: 18px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition */
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); /* Button glow */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            position: relative; 
+            overflow: hidden;
         }
 
         #send-btn:hover {
             background-color: #3e8e41;
-            transform: translateY(-2px); /* Lift effect on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(76, 175, 80, 0.8); /* Stronger glow on hover */
+        }
+        #send-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
         }
 
-        /* Styles for the main page scrollbar */
+        /* Scrollbar styles matching the dark theme with neon touch */
         body::-webkit-scrollbar {
             width: 10px;
-            background-color: #1a1d23; /* Same as body background */
+            background-color: #1a1d23;
         }
 
         body::-webkit-scrollbar-thumb {
-            background-color: #555; /* Darker gray for the thumb */
+            background-color: #4CAF50; /* Green thumb */
             border-radius: 10px;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.4); /* Subtle glow for thumb */
+        }
+        body::-webkit-scrollbar-track {
+            background: #2d3138; /* Dark track */
         }
 
-        /* Styles for the chat container's internal scrollbar */
         #chat-container::-webkit-scrollbar {
             width: 10px;
             background-color: #1a1d23;
         }
 
         #chat-container::-webkit-scrollbar-thumb {
-            background-color: #2d3138;
+            background-color: #3e8e41; /* Slightly darker green for inner scrollbar */
             border-radius: 10px;
+            box-shadow: 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        #chat-container::-webkit-scrollbar-track {
+            background: #22252b; /* Dark track for inner scrollbar */
+        }
+
+
+        /* CSS for the enhanced typing animation */
+        .typing-dots span {
+            display: inline-block;
+            opacity: 0;
+            animation: bounce-dot 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce-dot {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+            25% {
+                opacity: 1;
+                transform: translateY(-5px);
+                text-shadow: 0 0 5px #4CAF50; /* Add glow to dots */
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            75% {
+                opacity: 0;
+            }
         }
 
         /* Responsive design */
         @media only screen and (max-width: 600px) {
             #chat-container, #input-area {
-                width: 95%; /* Slightly wider on smaller screens */
-                padding: 15px; /* Reduced padding */
+                width: 95%;
+                padding: 15px;
             }
             #user-input {
                 padding: 12px;
@@ -151,14 +300,21 @@
                 font-size: 16px;
             }
             #input-area {
-                flex-direction: row; /* Keep elements in a row */
+                flex-direction: row;
                 gap: 10px;
+            }
+            h1 {
+                font-size: 20px; /* Adjust h1 size for smaller screens */
+            }
+            .chat-message {
+                padding: 10px;
+                font-size: 0.9em;
             }
         }
 
         @media only screen and (max-width: 400px) {
             #chat-container, #input-area {
-                width: 98%; /* Even wider on very small screens */
+                width: 98%;
                 padding: 10px;
             }
             #user-input {
@@ -169,34 +325,8 @@
                 padding: 10px 15px;
                 font-size: 14px;
             }
-        }
-
-        /* CSS for the enhanced typing animation */
-        .typing-dots span {
-            display: inline-block; /* Allows transform to work */
-            opacity: 0;
-            animation: bounce-dot 1.4s infinite; /* Changed animation name */
-        }
-
-        .typing-dots span:nth-child(1) { animation-delay: 0s; }
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes bounce-dot {
-            0%, 100% {
-                opacity: 0;
-                transform: translateY(0); /* Start and end at original position */
-            }
-            25% {
-                opacity: 1;
-                transform: translateY(-5px); /* Move up */
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(0); /* Come back down */
-            }
-            75% {
-                opacity: 0; /* Fade out */
+            h1 {
+                font-size: 18px; /* Further adjust h1 size for very small screens */
             }
         }
     </style>
@@ -204,7 +334,7 @@
 <body>
     <h1>🤖 Chatbot|Switch 1.0 ⚡</h1>
     <div id="chat-container"></div>
-    <div id="input-area"> <input type="text" id="user-input" placeholder="Type a command or /ai your question...">
+    <div id="input-area"> <input type="text" id="user-input" placeholder="Type a command or ask me anything...">
         <button id="send-btn">Send</button>
     </div>
 
@@ -213,53 +343,124 @@
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // --- Configuration for your API endpoints ---
-        const PRIVATE_API_ENDPOINT = "https://api.giftedtech.web.id/api/ai/openai"; 
-        const JOKE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/jokes";
-        const QUOTES_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/quotes";
-        const ADVICE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/advice";
-        const LOVE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/love";
-        const FRIENDSHIP_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/friendship";
-        const GRATITUDE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/gratitude";
-        const FANCY_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancy";
-        const FANCYV2_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancyv2";
+        // --- API Endpoints ---
+        // Google Gemini API (for AI responses)
+        const GEMINI_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"; 
+        
+        // Primary API set: giftedtech.web.id
+        const GIFTEDTECH_JOKE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/jokes";
+        const GIFTEDTECH_QUOTES_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/quotes";
+        const GIFTEDTECH_ADVICE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/advice";
+        const GIFTEDTECH_LOVE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/love";
+        const GIFTEDTECH_FRIENDSHIP_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/friendship";
+        const GIFTEDTECH_GRATITUDE_API_ENDPOINT = "https://api.giftedtech.web.id/api/fun/gratitude";
+        const GIFTEDTECH_FANCY_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancy";
+        const GIFTEDTECH_FANCYV2_API_ENDPOINT = "https://api.giftedtech.web.id/api/tools/fancyv2";
 
-        const YOUR_API_KEY = "gifted"; // Your API key
+        // Secondary API set: apis.davidcyriltech.my.id
+        const DAVIDCYRILTECH_FACTS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/fact";
+        const DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT = "https://apis.davidcyriltech.my.id/pickupline";
+        const DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/quotes"; // Note: User requested as /altquotes
+        const DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT = "https://apis.davidcyriltech.my.id/random/technews";
+        const DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/convert";
+        const DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/currencies";
+        const DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini"; // For /ai fallback
 
-        // Function to display bot messages
-        function displayBotMessage(message, isHTML = false) {
-            const botMessageDiv = document.createElement("div");
-            if (isHTML) {
-                botMessageDiv.innerHTML = `Bot: <br>${message}`;
-            } else {
-                botMessageDiv.textContent = `Bot: ${message}`;
+        // --- API Keys ---
+        const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs
+        const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs
+        const DAVIDCYRILTECH_API_KEY = ""; // NOTE: Set this key if required by davidcyriltech.my.id APIs
+
+        /**
+         * Utility function to copy text to clipboard and show feedback.
+         * @param {string} text The text to copy.
+         */
+        function copyToClipboard(text) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                const copyFeedback = document.createElement('span');
+                copyFeedback.textContent = 'Copied!';
+                copyFeedback.classList.add('copy-feedback');
+                document.body.appendChild(copyFeedback);
+                setTimeout(() => {
+                    if (document.body.contains(copyFeedback)) {
+                        document.body.removeChild(copyFeedback);
+                    }
+                }, 1500);
+                console.log('Text copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                // In a real application, you'd use a custom modal for this alert
+                // alert('Failed to copy text. Please copy manually: ' + text); 
+                displayMessage('bot', `Failed to copy text. Please copy manually: "${text}"`, 'error');
+            } finally {
+                if (document.body.contains(tempInput)) {
+                    document.body.removeChild(tempInput);
+                }
             }
-            chatContainer.appendChild(botMessageDiv);
+        }
+
+        // Function to display messages with proper styling based on type
+        // This function no longer adds "You:" or "Bot:" prefixes, and assumes HTML content for 'bot' type
+        function displayMessage(sender, text, type = 'bot') { 
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add('chat-message'); // Base class for all messages
+
+            const innerContentDiv = document.createElement('div'); // To hold the actual message text/HTML
+            innerContentDiv.classList.add('message-content'); // Optional class for styling content area
+
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message');
+                innerContentDiv.textContent = text; // Display user's text directly
+            } else { // Bot messages (including loading and error)
+                messageDiv.classList.add('bot-message'); // Default bot message style
+                
+                if (type === 'loading') {
+                    messageDiv.classList.add('loading-message');
+                    innerContentDiv.innerHTML = text; // Allows HTML for typing dots
+                } else if (type === 'error') {
+                    messageDiv.classList.add('error-message');
+                    innerContentDiv.textContent = text; // Display error text directly (plain text)
+                } else {
+                    // Regular bot response: now always assume HTML. Parsers should ensure content is HTML or safe plain text.
+                    innerContentDiv.innerHTML = text; 
+                }
+
+                // Add copy button for bot messages that are not loading
+                if (type !== 'loading') {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.textContent = 'Copy';
+                    copyBtn.classList.add('copy-btn');
+                    // Get the plain text content from the innerContentDiv for copying
+                    const textToCopy = innerContentDiv.textContent; 
+                    copyBtn.onclick = () => copyToClipboard(textToCopy);
+                    messageDiv.appendChild(copyBtn); // Add button to the message div
+                }
+            }
+            
+            messageDiv.prepend(innerContentDiv); // Add content first
+            chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
+
         /**
          * Safely calculates a mathematical expression.
-         * This function is a safer alternative to `eval()` but still executes code from a string.
-         * For production applications requiring robust and secure math parsing,
-         * consider using a dedicated math expression parsing library (e.g., math.js).
          * @param {string} expression The mathematical expression to calculate.
          * @returns {number} The result of the calculation.
          * @throws {Error} If the expression contains invalid characters or cannot be evaluated.
          */
         function safeCalculate(expression) {
-            // Basic validation: allow only numbers, operators (+, -, *, /, ., parentheses), and spaces.
-            // This prevents injection of arbitrary JavaScript code.
             if (!/^[0-9+\-*/.\s()]+$/.test(expression)) {
                 throw new Error('Invalid characters in calculation. Only numbers and basic operators are allowed.');
             }
-
             try {
-                // Using the Function constructor is safer than global eval() as it runs in its own scope.
-                // It still executes code from a string, so strict input validation is crucial.
                 return new Function('return ' + expression)();
             } catch (e) {
-                // Catch any errors during evaluation (e.g., syntax errors)
                 throw new Error('Could not evaluate expression. Please check syntax.');
             }
         }
@@ -270,11 +471,8 @@
          * @returns {string} The formatted HTML string.
          */
         function formatAiResponse(rawText) {
-            // Normalize newlines and remove leading/trailing whitespace
             let processedText = rawText.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-            // Convert any **bold** markdown to <strong>bold</strong> HTML
-            processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            processedText = processedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold text with **text**
 
             const lines = processedText.split('\n');
             let htmlOutput = [];
@@ -283,12 +481,10 @@
             lines.forEach(line => {
                 const trimmedLine = line.trim();
                 if (trimmedLine === '') {
-                    // If an empty line is encountered and we were in a list, close the list
                     if (inList) {
                         htmlOutput.push('</ul>');
                         inList = false;
                     }
-                    // Skip actual empty lines to avoid empty <p> tags
                     return;
                 }
 
@@ -297,124 +493,191 @@
                         htmlOutput.push('<ul>');
                         inList = true;
                     }
-                    // Add list item, trimming the '- ' prefix
                     htmlOutput.push(`<li>${trimmedLine.substring(2).trim()}</li>`);
                 } else {
-                    // If we were in a list, close it before starting a new paragraph
                     if (inList) {
                         htmlOutput.push('</ul>');
                         inList = false;
                     }
-                    // Wrap the line in a paragraph tag
                     htmlOutput.push(`<p>${trimmedLine}</p>`);
                 }
             });
 
-            // Close the list if it's still open at the very end of the text
             if (inList) {
                 htmlOutput.push('</ul>');
             }
-
             return htmlOutput.join('');
         }
 
+        // --- API Response Parsers ---
+        // Functions to extract content from different API response structures
+        const parseGiftedTechJoke = (data) => {
+            if (data.result && data.result.setup && data.result.punchline) {
+                return `${data.result.setup} -- ${data.result.punchline}`;
+            } else if (data.result && data.result.joke) {
+                return data.result.joke;
+            }
+            return `Unexpected joke format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseGiftedTechQuote = (data) => {
+            if (data.result && data.result.quote && data.result.author) {
+                return `"${data.result.quote}" - ${data.result.author}`;
+            }
+            return `Unexpected quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        };
+        const parseGiftedTechAdvice = (data) => data.result && data.result.advice ? data.result.advice : `Unexpected advice format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        const parseGiftedTechLove = (data) => data.result && data.result.love ? data.result.love : `Unexpected love quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        const parseGiftedTechFriendship = (data) => data.result && data.result.friendship ? data.result.friendship : `Unexpected friendship quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        const parseGiftedTechGratitude = (data) => data.result && data.result.gratitude ? data.result.gratitude : `Unexpected gratitude quote format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+        const parseGiftedTechFancy = (data) => data.fancyText ? data.fancyText : `Unexpected fancy text format from GiftedTech. Raw: ${JSON.stringify(data)}`;
+
+        const parseDavidCyrilTechFact = (data) => data.fact ? data.fact : `Unexpected fact format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        const parseDavidCyrilTechPickupline = (data) => data.pickupline ? data.pickupline : `Unexpected pickupline format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        const parseDavidCyrilTechAltQuote = (data) => data.quote ? data.quote : `Unexpected quotes format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        
+        const parseDavidCyrilTechTechNews = (data) => {
+            if (Array.isArray(data.news) && data.news.length > 0) {
+                return "Latest Tech News:<br>" + data.news.slice(0, 5).map((item, index) => `<strong>${index + 1}. ${item.title || item.headline || 'No title'}</strong>: <a href="${item.url}" target="_blank">${item.url || 'No URL'}</a>`).join('<br>');
+            }
+            return `Could not retrieve tech news from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        };
+
+        const parseDavidCyrilTechCurrencies = (data) => {
+            // Updated to correctly parse the currencies string and remove unwanted prefixes
+            if (data.currencies && typeof data.currencies === 'string') {
+                let currenciesString = data.currencies;
+                // Explicitly remove unwanted "creator", "success", "currencies" if they appear in the string
+                currenciesString = currenciesString.replace(/creator:[\s\w]+,?\s*|success:(true|false),?\s*|currencies:[\s\w]+,?\s*/gi, '').trim();
+
+                const currencyCodes = currenciesString.split(',').map(code => code.trim()).filter(code => code); // Filter empty strings
+                const displayLimit = 20; // Show first 20 for brevity in chat
+                const currenciesHtml = currencyCodes.slice(0, displayLimit).map(code => `<strong>${code}</strong>`).join(', ');
+                
+                if (currenciesHtml) {
+                    return `Available Currencies (partial list):<br>${currenciesHtml}<br><em>(For full list, use their API directly.)</em>`;
+                }
+            }
+            // If data.currencies is not a string, or parsing failed, return generic error message
+            return `Could not retrieve currencies or unexpected format from DavidCyrilTech. Raw: ${JSON.stringify(data)}`;
+        };
+
+        const parseDavidCyrilTechCurrencyConvert = (data, userQuery) => {
+            // Attempt to extract details from user query as fallback for display if API response is minimal
+            const match = userQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-Z]{3})/i); 
+            let amount = data.amount || (match ? parseFloat(match[1]) : 'N/A');
+            let from = data.from || (match ? match[2].toUpperCase() : 'N/A');
+            let to = data.to || (match ? match[3].toUpperCase() : 'N/A');
+
+            if (data.convertedAmount !== undefined) {
+                return `${amount} ${from} is approximately <strong>${data.convertedAmount.toFixed(2)} ${to}</strong>.`;
+            }
+            return `Could not perform currency conversion. Response: ${JSON.stringify(data)}`;
+        };
+
+        const parseAiResponse = (data) => {
+            if (data.candidates && data.candidates.length > 0 &&
+                data.candidates[0].content && data.candidates[0].content.parts &&
+                data.candidates[0].content.parts.length > 0) {
+                return formatAiResponse(data.candidates[0].content.parts[0].text);
+            } else if (data.response) { // Some AI APIs might just have a 'response' field
+                return formatAiResponse(data.response);
+            }
+            return `I received an empty or unreadable AI response. Raw: ${JSON.stringify(data)}`;
+        };
+
 
         /**
-         * Generic function to fetch content from an API and handle common response structures.
-         * @param {string} endpoint The API endpoint to call.
+         * Generic function to fetch content from an API with fallback.
+         * Attempts primary API first, then falls back to secondary if primary fails.
+         * @param {Object} primaryConfig Configuration for the primary API: { endpoint, apiKey, queryParam, parser }
+         * @param {Object} [secondaryConfig] Configuration for the secondary API: { endpoint, apiKey, queryParam, parser }
          * @param {string} loadingText Text to display while fetching.
-         * @param {string} [queryParam='q'] The query parameter name for text-based APIs.
-         * @param {string} [userQuery=''] The actual query text from the user.
+         * @param {string} [userQuery=''] The actual query text from the user (for parsers that need it).
          */
-        async function fetchAPIContent(endpoint, loadingText, queryParam = '', userQuery = '') {
-            const loadingMessageDiv = document.createElement("div");
-            loadingMessageDiv.innerHTML = `Bot: ${loadingText}<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`;
-            chatContainer.appendChild(loadingMessageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        async function fetchAPIContentWithFallback(primaryConfig, secondaryConfig, loadingText, userQuery = '') {
+            displayMessage('bot', `${loadingText}<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`, 'loading');
+            let finalContentText = "Sorry, I couldn't fetch content right now. Please try again later. 😔";
+            let fetchedSuccessfully = false;
 
-            try {
-                let url = `${endpoint}?apikey=${YOUR_API_KEY}`;
-                if (queryParam && userQuery) {
-                    url += `&${queryParam}=${encodeURIComponent(userQuery)}`;
+            const fetchAndParse = async (config, isPrimary) => {
+                let url = config.endpoint;
+                let apiKey = config.apiKey;
+                let queryParams = new URLSearchParams();
+                
+                // Add API key if provided and not for Gemini (Canvas handles Gemini key)
+                if (apiKey && config.endpoint !== GEMINI_API_ENDPOINT) { 
+                    queryParams.append('apikey', apiKey);
+                } else if (config.endpoint === GEMINI_API_ENDPOINT && GEMINI_API_KEY) {
+                    // For Gemini, key is typically appended differently or handled by environment
+                    queryParams.append('key', GEMINI_API_KEY);
+                }
+
+                // Add query parameter if defined
+                if (config.queryParam && userQuery) {
+                    // For currency converter, userQuery is already the formatted part like "amount=100&from=USD&to=EUR"
+                    if (config.endpoint === DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT) {
+                         url += `?${userQuery}`; // Append directly as it's already formatted
+                         if (apiKey) url += `&apikey=${apiKey}`; // Add API key after if present
+                    } else {
+                        queryParams.append(config.queryParam, encodeURIComponent(userQuery));
+                    }
+                } else if (config.endpoint === DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT && apiKey) {
+                     url += `?apikey=${apiKey}`; // If no query, but there is API key
                 }
                 
-                const response = await fetch(url);
+                // Construct full URL if queryParams were used
+                if (queryParams.toString() && config.endpoint !== DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT) {
+                    url += `?${queryParams.toString()}`;
+                }
 
+
+                // Decide between POST (for Gemini) and GET
+                let fetchOptions = {};
+                if (config.endpoint === GEMINI_API_ENDPOINT || config.endpoint === DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT) {
+                    fetchOptions = {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: userQuery }] }] })
+                    };
+                } else {
+                    fetchOptions = { method: 'GET' };
+                }
+
+                const response = await fetch(url, fetchOptions);
                 if (!response.ok) {
-                    let errorText = `HTTP Error: ${response.status} ${response.statusText}`;
-                    try {
-                        const errorData = await response.json();
-                        if (errorData.message) {
-                            errorText += ` - ${errorData.message}`;
-                        }
-                    } catch (jsonError) {
-                        // If response is not JSON, use the status text
-                    }
-                    throw new Error(errorText);
+                    const errorData = await response.json().catch(() => ({})); 
+                    const errorMsg = errorData.message || `${response.status} ${response.statusText}`;
+                    throw new Error(`${isPrimary ? 'Primary' : 'Secondary'} API failed: ${errorMsg}`);
                 }
-
                 const data = await response.json();
-                console.log(`API response from ${endpoint}:`, data); // Log the full response for debugging
+                console.log(`${isPrimary ? 'Primary' : 'Secondary'} API response from ${config.endpoint}:`, data);
+                return config.parser(data, userQuery); // Pass userQuery to parser
+            };
 
-                let contentText;
-                if (typeof data.result === 'string') {
-                    contentText = data.result;
-                } else if (typeof data.result === 'object' && data.result !== null) {
-                    // Specific handling for JOKE_API_ENDPOINT, as it often returns setup/punchline
-                    if (endpoint === JOKE_API_ENDPOINT) {
-                        if (data.result.setup && data.result.punchline) {
-                            contentText = `${data.result.setup} -- ${data.result.punchline}`;
-                        } else if (data.result.joke) { // Fallback for a single 'joke' property within result (less common for this API)
-                            contentText = data.result.joke;
-                        } else {
-                            contentText = `Joke API response 'result' is an object but lacks expected 'setup'/'punchline' or 'joke' properties. Raw object: ${JSON.stringify(data.result)}`;
-                            console.warn("Joke API response 'result' property is an object without expected properties. Displaying raw object:", data.result);
-                        }
+            try {
+                finalContentText = await fetchAndParse(primaryConfig, true);
+                fetchedSuccessfully = true;
+            } catch (primaryError) {
+                console.warn(primaryError.message);
+                if (secondaryConfig) {
+                    displayMessage('bot', `Primary source failed. Attempting fallback...<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`, 'loading');
+                    try {
+                        finalContentText = await fetchAndParse(secondaryConfig, false);
+                        fetchedSuccessfully = true;
+                    } catch (secondaryError) {
+                        console.error(secondaryError.message);
+                        finalContentText = `Both primary and fallback APIs failed. Error: ${secondaryError.message} 😔`;
                     }
-                    // Generic object parsing for other APIs
-                    else if (data.result.quote && data.result.author) { // For quotes API
-                        contentText = `"${data.result.quote}" - ${data.result.author}`;
-                    } else if (data.result.advice) { // For advice API
-                        contentText = data.result.advice;
-                    } else if (data.result.love) { // For love API
-                        contentText = data.result.love;
-                    } else if (data.result.friendship) { // For friendship API
-                        contentText = data.result.friendship;
-                    } else if (data.result.gratitude) { // For gratitude API
-                        contentText = data.result.gratitude;
-                    } else if (data.result.fancyText) { // For fancy text APIs (if reactivated)
-                        contentText = data.result.fancyText;
-                    }
-                    else {
-                        // Fallback: stringify the object if no specific content property is found within result
-                        contentText = `API response 'result' is an object without a known property. Raw object: ${JSON.stringify(data.result)}`;
-                        console.warn(`API response 'result' property for ${endpoint} is an object without a known property. Displaying raw object:`, data.result);
-                    }
-                } else if (data.fancyText) { // Check for 'fancyText' directly in the root 'data' object (for fancy APIs that might have this structure)
-                    contentText = data.fancyText;
-                }
-                else {
-                    // Fallback for unexpected data.result format (e.g., null, undefined, or non-object/non-string)
-                    contentText = "Sorry, the API response was unexpected or empty.";
-                    console.error(`API response for ${endpoint} has an unexpected format for 'result':`, data);
+                } else {
+                    finalContentText = `Failed to fetch content. Error: ${primaryError.message} 😔`;
                 }
 
-                // If contentText is still undefined or an empty string after parsing,
-                // and no specific error occurred, display a generic message.
-                if (!contentText || contentText.trim() === "") {
-                    contentText = "Sorry, I couldn't get content from the API or the content was empty.";
-                }
-
-                displayBotMessage(contentText); // Always display the processed botAnswer
-
-            } catch (error) {
-                console.error(`Error fetching from ${endpoint}:`, error);
-                displayBotMessage(`Sorry, I couldn't fetch content right now. ${error.message ? `Error: ${error.message}` : 'Please try again later.'} 😔`);
             } finally {
-                // Ensure loading message is always removed, regardless of success or error
-                if (chatContainer.contains(loadingMessageDiv)) {
-                    chatContainer.removeChild(loadingMessageDiv);
+                const messages = chatContainer.querySelectorAll('.loading-message');
+                if (messages.length > 0) {
+                    chatContainer.removeChild(messages[messages.length - 1]);
                 }
+                displayMessage('bot', finalContentText, fetchedSuccessfully ? 'bot' : 'error');
             }
         }
 
@@ -426,17 +689,22 @@
                     <li><strong>/help</strong>: Access this data stream. 📚</li>
                     <li><strong>/about</strong>: Unveil bot specifications. 🤖</li>
                     <li><strong>/dev</strong>: Developer credits log. 💻</li>
-                    <li><strong>/info</strong>: General system intelligence. 💡</li>
+                    <li><strong>/info</strong>: General system intelligence.💡</li>
                     <li><strong>/socials</strong>: Connect on our networks. 🔗</li>
-                    <li><strong>/ai [query]</strong>: Initiate neural network query. 🧠</li>
                     <li><strong>/joke</strong>: Retrieve a random humor byte. 😂</li>
+                    <li><strong>/facts</strong>: Discover an interesting data point. 🤯</li>
+                    <li><strong>/pickuplines</strong>: Access a charm algorithm. 😉</li>
                     <li><strong>/quotes</strong>: Download an inspirational data packet. 💡</li>
+                    <li><strong>/altquotes</strong>: Retrieve an alternative inspirational data packet. 🌟</li>
+                    <li><strong>/technews</strong>: Get the latest tech headlines. 📰</li>
                     <li><strong>/advice</strong>: Access a wisdom algorithm. 🧠</li>
                     <li><strong>/love</strong>: Generate a sentiment burst. ❤️</li>
                     <li><strong>/friend</strong>: Process a camaraderie encryption. 🤝</li>
                     <li><strong>/gratitude</strong>: Synthesize an appreciation sequence. 🙏</li>
                     <li><strong>/fancy [text]</strong>: Encode text with stylistic algorithms (v1). ✨ <em>(In Development)</em></li>
                     <li><strong>/fancy2 [text]</strong>: Encode text with stylistic algorithms (v2). 🌟 <em>(In Development)</em></li>
+                    <li><strong>/currencies</strong>: List supported currency codes. 💲</li>
+                    <li><strong>/convert [amount] [from] [to]</strong>: Convert currency values (e.g., /convert 10 USD to EUR). 💱</li>
                     <li><strong>/quest1</strong>: Engage in coding exploration. 🌐</li>
                     <li><strong>/quest2</strong>: Initiate advanced programming protocols. 🚀</li>
                     <li><strong>/update</strong>: Check for system upgrades. ⬆️</li>
@@ -471,7 +739,6 @@
                     <p>_Feel free to reach out to our network coordinates!_ 🌐</p>
                 ` 
             },
-            // /joke, /quotes, /advice, /love, /friend, /gratitude, /fancy, /fancy2 are now handled dynamically
             { command: "quest1", response: "Explore the world of coding and discover new things. 🌐" },
             { command: "quest2", response: "Learn a new programming language and build something amazing. 💻" },
             { command: "update", response: "We're constantly updating and improving our chatbot. 🚀" },
@@ -505,132 +772,191 @@
         ];
 
         sendBtn.addEventListener("click", async () => {
-            const userInputValue = userInput.value.trim();
-            if (userInputValue === "") return;
-
-            // Display user's message
-            const userMessageDiv = document.createElement("div");
-            userMessageDiv.textContent = `You: ${userInputValue}`;
-            chatContainer.appendChild(userMessageDiv);
-
-            // Clear input field immediately
-            userInput.value = "";
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            const lowerCaseInput = userInputValue.toLowerCase();
-
-            // Handle specific dynamic commands first
-            if (lowerCaseInput === "/joke") {
-                await fetchAPIContent(JOKE_API_ENDPOINT, "Fetching humor byte");
-            } else if (lowerCaseInput === "/quotes") {
-                await fetchAPIContent(QUOTES_API_ENDPOINT, "Downloading inspirational data");
-            } else if (lowerCaseInput === "/advice") {
-                await fetchAPIContent(ADVICE_API_ENDPOINT, "Accessing wisdom algorithm");
-            } else if (lowerCaseInput === "/love") {
-                await fetchAPIContent(LOVE_API_ENDPOINT, "Generating sentiment burst");
-            } else if (lowerCaseInput === "/friend") {
-                await fetchAPIContent(FRIENDSHIP_API_ENDPOINT, "Processing camaraderie encryption");
-            } else if (lowerCaseInput === "/gratitude") {
-                await fetchAPIContent(GRATITUDE_API_ENDPOINT, "Synthesizing appreciation sequence");
-            } else if (lowerCaseInput.startsWith("/fancy ")) {
-                // Modified /fancy command to show "In development"
-                displayBotMessage("This command is currently in development. Please check back later! 🛠️");
-            } else if (lowerCaseInput.startsWith("/fancy2 ")) {
-                // Modified /fancy2 command to show "In development"
-                displayBotMessage("This command is currently in development. Please check back later! 🛠️");
-            } else if (lowerCaseInput.startsWith("/calculate")) {
-                try {
-                    const calculation = userInputValue.replace("/calculate ", "");
-                    const result = safeCalculate(calculation); // Use safeCalculate
-                    displayBotMessage(`Result: ${result} 🧮`);
-                } catch (error) {
-                    displayBotMessage(`Error: ${error.message} 🤔`);
-                }
-            } else if (lowerCaseInput === "/clear") {
-                chatContainer.innerHTML = "";
-            } else if (lowerCaseInput.startsWith("/ai")) {
-                // --- Handle /ai command for API call ---
-                const aiQuery = userInputValue.substring(3).trim(); // Extract query after "/ai "
-                if (aiQuery === "") {
-                    displayBotMessage(`Please provide a question after /ai. For example: /ai What is JavaScript?`);
-                    return;
+            try { // START of added try-catch block for the entire click handler
+                const userInputValue = userInput.value.trim();
+                // Provide feedback if input is empty
+                if (userInputValue === "") {
+                    displayMessage('bot', "Please type something!", 'error');
+                    return; 
                 }
 
-                const thinkingMessageDiv = document.createElement("div");
-                // Added typing animation to the thinking message
-                thinkingMessageDiv.innerHTML = `Bot: Thinking<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 🤔`;
-                chatContainer.appendChild(thinkingMessageDiv);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                displayMessage('user', userInputValue);
+                userInput.value = ""; // Clear input immediately
 
-                try {
-                    const encodedQuery = encodeURIComponent(aiQuery);
-                    // Using the PRIVATE_API_ENDPOINT for the /ai command
-                    const url = `${PRIVATE_API_ENDPOINT}?apikey=${YOUR_API_KEY}&q=${encodedQuery}`;
+                const lowerCaseInput = userInputValue.toLowerCase();
+                let commandHandled = false;
 
-                    const response = await fetch(url);
-
-                    // Check if the HTTP response itself is not OK
-                    if (!response.ok) {
-                        let errorText = `HTTP Error: ${response.status} ${response.statusText}`;
-                        try {
-                            const errorData = await response.json();
-                            if (errorData.message) {
-                                errorText += ` - ${errorData.message}`;
-                            }
-                        } catch (jsonError) {
-                            // If response is not JSON, use the status text
+                // --- Explicit Commands (starting with '/') ---
+                if (lowerCaseInput.startsWith('/')) {
+                    // Commands with GiftedTech as Primary, DavidCyrilTech as Secondary
+                    if (lowerCaseInput === "/joke") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_JOKE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke },
+                            { endpoint: DAVIDCYRILTECH_JOKE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseGiftedTechJoke }, // Reusing giftedtech parser for consistency if same structure
+                            "Fetching humor byte"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/quotes") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_QUOTES_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechQuote },
+                            { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
+                            "Downloading inspirational data"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/advice") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_ADVICE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechAdvice },
+                            null, // No current fallback specified for advice
+                            "Accessing wisdom algorithm"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/love") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_LOVE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechLove },
+                            null, // No current fallback specified for love
+                            "Generating sentiment burst"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/friend") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_FRIENDSHIP_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechFriendship },
+                            null, // No current fallback specified for friendship
+                            "Processing camaraderie encryption"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/gratitude") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: GIFTEDTECH_GRATITUDE_API_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: null, parser: parseGiftedTechGratitude },
+                            null, // No current fallback specified for gratitude
+                            "Synthesizing appreciation sequence"
+                        );
+                        commandHandled = true;
+                    } 
+                    // New DavidCyrilTech commands (as primary, no fallback for now)
+                    else if (lowerCaseInput === "/facts") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: DAVIDCYRILTECH_FACTS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechFact },
+                            null,
+                            "Discovering an interesting data point"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/pickuplines") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: DAVIDCYRILTECH_PICKUPLINE_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechPickupline },
+                            null,
+                            "Accessing a charm algorithm"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/altquotes") { // Explicit new command
+                        await fetchAPIContentWithFallback(
+                            { endpoint: DAVIDCYILTECH_ALT_QUOTES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechAltQuote },
+                            null,
+                            "Retrieving an alternative inspirational data packet"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/technews") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: DAVIDCYRILTECH_TECHNEWS_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechTechNews },
+                            null,
+                            "Getting the latest tech headlines"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/currencies") {
+                        await fetchAPIContentWithFallback(
+                            { endpoint: DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: null, parser: parseDavidCyrilTechCurrencies },
+                            null,
+                            "Listing supported currency codes"
+                        );
+                        commandHandled = true;
+                    } else if (lowerCaseInput.startsWith("/convert")) {
+                        const convertQuery = userInputValue.substring("/convert".length).trim();
+                        const match = convertQuery.match(/(\d+(?:\.\d+)?)\s*([a-zA-Z]{3})\s+to\s+([a-zA-Z]{3})/i);
+                        if (match) {
+                            const amount = match[1];
+                            const from = match[2].toUpperCase();
+                            const to = match[3].toUpperCase();
+                            await fetchAPIContentWithFallback(
+                                { endpoint: DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'amount', parser: parseDavidCyrilTechCurrencyConvert },
+                                null,
+                                "Converting currency values",
+                                `amount=${amount}&from=${from}&to=${to}` // Pass full query string part
+                            );
+                        } else {
+                            displayMessage('bot', `Invalid /convert format. Use: /convert [amount] [from] to [to] (e.g., /convert 10 USD to EUR). 💱`, 'error');
                         }
-                        throw new Error(errorText);
+                        commandHandled = true;
                     }
-
-                    const data = await response.json();
-                    
-                    let botAnswer;
-                    if (data.result !== undefined && data.result !== null) {
-                        let rawAiText = typeof data.result === 'object' ? JSON.stringify(data.result) : data.result;
-                        botAnswer = formatAiResponse(rawAiText); // Format the AI response here
+                    // Commands that display "in development" (Fancy Text)
+                    else if (lowerCaseInput.startsWith("/fancy ")) {
+                        displayMessage('bot', "This command is currently in development. Please check back later! ✨");
+                        commandHandled = true;
+                    } else if (lowerCaseInput.startsWith("/fancy2 ")) {
+                        displayMessage('bot', "This command is currently in development. Please check back later! 🌟");
+                        commandHandled = true;
+                    } 
+                    // Other existing static commands
+                    else if (lowerCaseInput.startsWith("/calculate")) {
+                        try {
+                            const calculation = userInputValue.replace("/calculate ", "");
+                            const result = safeCalculate(calculation);
+                            displayMessage('bot', `Result: ${result} 🧮`);
+                        } catch (error) {
+                            displayMessage('bot', `Error: ${error.message} 🤔`, 'error');
+                        }
+                        commandHandled = true;
+                    } else if (lowerCaseInput === "/clear") {
+                        chatContainer.innerHTML = "";
+                        displayMessage('bot', `Chat log purged. Ready for new interactions! ✨`);
+                        commandHandled = true;
                     } else {
-                        // If data.result is missing, stringify the entire data object for debugging
-                        botAnswer = `I received an empty or unreadable response from the AI. Raw response: ${JSON.stringify(data)}`;
-                        console.error("AI API response missing 'result' property or unexpected format:", data);
+                        // Check other predefined commands (like help, about, dev, etc.)
+                        const commandName = lowerCaseInput.substring(1); 
+                        const command = commands.find((cmd) => cmd.command === commandName);
+                        if (command) {
+                            displayMessage(
+                                'bot',
+                                typeof command.response === "function" ? command.response() : command.response,
+                                'bot' 
+                            );
+                            commandHandled = true;
+                        } else {
+                            displayMessage('bot', `Sorry, I don't recognize the command '${userInputValue}'. Type /help for available commands. 😕`, 'error');
+                            commandHandled = true;
+                        }
                     }
-                    
-                    // Pass true to displayBotMessage because botAnswer is now HTML
-                    displayBotMessage(botAnswer, true); 
+                }
+                
+                // --- Default to AI Query if no explicit command was handled and not a greeting ---
+                if (!commandHandled) {
+                    // Check for general greetings
+                    if (lowerCaseInput.includes("hello") || lowerCaseInput.includes("hi") || lowerCaseInput.includes("hey")) {
+                        displayMessage('bot', `How are you doing today 😊`);
+                    } else {
+                        // Send to AI by default
+                        displayMessage('bot', `Thinking<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span> 🤔`, 'loading');
+                        
+                        try {
+                            // AI APIs (Gemini Primary, DavidCyrilTech AI Fallback)
+                            await fetchAPIContentWithFallback(
+                                { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse },
+                                { endpoint: DAVIDCYRILTECH_AI_FALLBACK_ENDPOINT, apiKey: DAVIDCYRILTECH_API_KEY, queryParam: 'text', parser: parseAiResponse },
+                                "Thinking",
+                                userInputValue
+                            );
 
-                } catch (error) {
-                    console.error("Error fetching from private API:", error);
-                    displayBotMessage(`Sorry, I couldn't get a response from the AI. ${error.message ? `Error: ${error.message}` : 'Please check the network or try again later.'} 😔`);
-                } finally {
-                    // Ensure thinking message is always removed, regardless of success or error
-                    if (chatContainer.contains(thinkingMessageDiv)) {
-                        chatContainer.removeChild(thinkingMessageDiv);
+                        } catch (error) {
+                            console.error("Error with AI query:", error);
+                            // The fetchAPIContentWithFallback already handles display of error
+                            // So we don't need a displayMessage here unless it's a completely unhandled outer error
+                        }
                     }
                 }
-            } else {
-                // Handle other predefined commands
-                const commandName = lowerCaseInput.substring(1); // Remove '/' for command lookup
-                const command = commands.find((cmd) => cmd.command === commandName);
-                if (command) {
-                    displayBotMessage(
-                        typeof command.response === "function" ? command.response() : command.response,
-                        true // Pass true to indicate HTML content for these static commands
-                    );
-                } else if (
-                    lowerCaseInput.includes("hello") ||
-                    lowerCaseInput.includes("hi") ||
-                    lowerCaseInput.includes("hey")
-                ) {
-                    displayBotMessage(`How are you doing today 😊`);
-                } else {
-                    // Default response for unrecognized commands
-                    displayBotMessage(`Sorry, I don't understand that command. Type /help for available commands. 😕`);
-                }
+            } catch (e) { // END of added try-catch block
+                console.error("An unexpected error occurred in send button handler:", e);
+                displayMessage('bot', `An unexpected internal error occurred: ${e.message}. Please try again later or contact support.`, 'error');
             }
-            chatContainer.scrollTop = chatContainer.scrollHeight;
         });
 
-        // Optional: Allow sending messages with Enter key
         userInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 sendBtn.click();
