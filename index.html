@@ -475,13 +475,13 @@
         const DAVIDCYRILTECH_CURRENCY_CONVERTER_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/convert";
         const DAVIDCYRILTECH_CURRENCIES_API_ENDPOINT = "https://apis.davidcyriltech.my.id/tools/currencies";
         
-        // New primary AI endpoint as requested by the user
-        const GIFTEDTECH_AI_PRIMARY_ENDPOINT = "https://api.giftedtech.my.id/api/ai/openai";
+        // New primary AI endpoint as requested by the user: davidcyriltech.my.id/ai/gemini
+        const DAVIDCYRILTECH_AI_GEMINI_ENDPOINT = "https://apis.davidcyriltech.my.id/ai/gemini";
 
         // --- API Keys Configuration --- Made by Musa Abiodun and H.A.P.E. Team
-        const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs
-        const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs (and now GIFTEDTECH_AI_PRIMARY_ENDPOINT)
-        const DAVIDCYRILTECH_API_KEY = ""; // NOTE: Set this key if required by other davidcyriltech.my.id APIs
+        const GEMINI_API_KEY = ""; // Canvas will inject this for Google APIs - No manual input needed.
+        const GIFTEDTECH_API_KEY = "gifted"; // Explicit key for giftedtech.web.id APIs (non-AI ones)
+        const DAVIDCYRILTECH_API_KEY = ""; // This key might be needed for other davidcyriltech.my.id APIs, but NOT for davidcyriltech.my.id/ai/gemini
 
         /**
          * Utility function to copy text to clipboard and show feedback.
@@ -752,19 +752,21 @@
 
         /**
          * Parses the AI response structure and formats it.
-         * Added handling for `data.result` string from new GiftedTech OpenAI endpoint.
+         * Added handling for `data.message` string from new primary AI endpoint.
          * @param {Object} data - The raw data object from the AI API response.
          * @returns {string} The formatted AI response as an HTML string.
          * Made by Musa Abiodun and H.A.P.E. Team
          */
         const parseAiResponse = (data) => {
-            if (data.candidates && data.candidates.length > 0 &&
+            if (data.message && typeof data.message === 'string') { // CHECK FOR data.message FIRST
+                return formatAiResponse(data.message);
+            } else if (data.candidates && data.candidates.length > 0 &&
                 data.candidates[0].content && data.candidates[0].content.parts &&
                 data.candidates[0].content.parts.length > 0) {
                 return formatAiResponse(data.candidates[0].content.parts[0].text);
             } else if (data.response && typeof data.response === 'string') {
                 return formatAiResponse(data.response);
-            } else if (typeof data.result === 'string') { // Specifically for GiftedTech OpenAI API's direct string result
+            } else if (typeof data.result === 'string') { // Fallback for APIs like davidcyriltech.my.id/ai/gemini
                 return formatAiResponse(data.result);
             }
             return `I received an empty or unreadable AI response. Raw: ${JSON.stringify(data)}`;
@@ -772,53 +774,48 @@
 
 
         /**
-         * Generic function to fetch content from an API with fallback mechanism.
-         * Attempts primary API first, then falls back to secondary if primary fails.
+         * Generic function to fetch content from an API.
+         * Now explicitly handles davidcyriltech.my.id/ai/gemini as primary AI.
          * @param {Object} primaryConfig Configuration for the primary API: { endpoint, apiKey, queryParam, parser }
-         * @param {Object} [secondaryConfig] Configuration for the secondary API: { endpoint, apiKey, queryParam, parser }
+         * @param {Object} [secondaryConfig] Configuration for the secondary API: { endpoint, apiKey, queryParam, parser } (NOTE: used for Gemini fallback)
          * @param {string} loadingText The text to display while fetching. Emojis added by Musa Abiodun and H.A.P.E. Team.
          * @param {string} [userQuery=''] The actual query text from the user (for parsers that need it).
          * @returns {Promise<void>}
          * Made by Musa Abiodun and H.A.P.E. Team
          */
         async function fetchAPIContentWithFallback(primaryConfig, secondaryConfig, loadingText, userQuery = '') {
-            // Store a direct reference to the loading message div that will be created
             const loadingMessageDiv = document.createElement("div");
-            loadingMessageDiv.classList.add('chat-message', 'loading-message'); // Ensure it has both classes for styling
+            loadingMessageDiv.classList.add('chat-message', 'loading-message');
             const innerLoadingContentDiv = document.createElement('div');
             innerLoadingContentDiv.classList.add('message-content');
             innerLoadingContentDiv.innerHTML = `${loadingText}<span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>`;
             loadingMessageDiv.appendChild(innerLoadingContentDiv);
             
-            chatContainer.appendChild(loadingMessageDiv); // Add it to the chat container
-            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to show it
+            chatContainer.appendChild(loadingMessageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
 
             let finalContentText = "Sorry, I couldn't fetch content right now. Please try again later. 😔";
             let fetchedSuccessfully = false;
 
-            const fetchAndParse = async (config, isPrimary) => {
+            const fetchAndParse = async (config) => { 
                 let url = config.endpoint;
                 const currentQueryParams = new URLSearchParams();
                 let fetchOptions = {};
 
-                // Special handling for the GiftedTech OpenAI endpoint as primary AI
-                if (config.endpoint === GIFTEDTECH_AI_PRIMARY_ENDPOINT) {
-                    currentQueryParams.append('apikey', GIFTEDTECH_API_KEY); // Explicitly uses 'gifted' API key
-                    currentQueryParams.append('q', encodeURIComponent(userQuery)); // User query appended as 'q' parameter
+                // Specific handling for DAVIDCYRILTECH_AI_GEMINI_ENDPOINT (primary AI)
+                if (config.endpoint === DAVIDCYRILTECH_AI_GEMINI_ENDPOINT) {
+                    currentQueryParams.append('text', encodeURIComponent(userQuery)); // Uses 'text' parameter
+                    // No API key appended for this specific endpoint as per user request
                     fetchOptions.method = 'GET'; // This API uses GET
                 } else if (config.endpoint === GEMINI_API_ENDPOINT) {
                     // Google Gemini API (fallback AI) uses POST
-                    // If a specific API key for Gemini is needed and not auto-injected, it would go here.
-                    // For now, it relies on Canvas's injection or being an empty string.
-                    if (GEMINI_API_KEY) { // Only append if key is explicitly set (though Canvas injects)
-                       currentQueryParams.append('key', GEMINI_API_KEY);
-                    }
+                    // Canvas handles GEMINI_API_KEY injection, no explicit appending here is needed
                     fetchOptions.method = 'POST';
                     fetchOptions.headers = { 'Content-Type': 'application/json' };
                     fetchOptions.body = JSON.stringify({ contents: [{ role: "user", parts: [{ text: userQuery }] }] });
                 } else {
                     // All other general APIs (GiftedTech non-AI, DavidCyrilTech non-AI)
-                    if (config.apiKey) { // For other APIs, use the apiKey from their specific config
+                    if (config.apiKey) { // For these APIs, use the apiKey from their specific config
                         currentQueryParams.append('apikey', config.apiKey);
                     }
                     if (config.queryParam && userQuery) {
@@ -836,38 +833,36 @@
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({})); 
                     const errorMsg = errorData.message || `${response.status} ${response.statusText}`;
-                    throw new Error(`${isPrimary ? 'Primary' : 'Secondary'} API failed: ${errorMsg}`);
+                    throw new Error(`API failed: ${errorMsg}`); // Simplified error message
                 }
                 const data = await response.json();
-                console.log(`${isPrimary ? 'Primary' : 'Secondary'} API response from ${config.endpoint}:`, data);
-                return config.parser(data, userQuery); // Pass userQuery to parser
+                console.log(`API response from ${config.endpoint}:`, data);
+                return config.parser(data, userQuery);
             };
 
             try {
-                finalContentText = await fetchAndParse(primaryConfig, true);
+                // Always try primary config first
+                finalContentText = await fetchAndParse(primaryConfig);
                 fetchedSuccessfully = true;
             } catch (primaryError) {
-                console.warn(primaryError.message);
+                console.warn(`Primary API Error (${primaryConfig.endpoint}): ${primaryError.message}`);
                 if (secondaryConfig) {
-                    // Only attempt secondary if it's explicitly provided and valid
                     try {
-                        finalContentText = await fetchAndParse(secondaryConfig, false);
+                        // Attempt fallback API if primary fails
+                        finalContentText = await fetchAndParse(secondaryConfig);
                         fetchedSuccessfully = true;
                     } catch (secondaryError) {
-                        console.error(secondaryError.message);
-                        finalContentText = `Both primary and fallback APIs failed. Error: ${primaryError.message}. Secondary failed: ${secondaryError.message} 😔`;
+                        console.error(`Secondary API Error (${secondaryConfig.endpoint}): ${secondaryError.message}`);
+                        finalContentText = `Both primary and fallback APIs failed. Primary failed: ${primaryError.message}. Secondary failed: ${secondaryError.message} 😔`;
                     }
                 } else {
-                    finalContentText = `Failed to fetch content. Error: ${primaryError.message} 😔`;
+                    finalContentText = `Failed to get a response from the AI. Error: ${primaryError.message} 😔`;
                 }
-
             } finally {
-                // Ensure the specific loading message created at the start is removed
                 if (chatContainer.contains(loadingMessageDiv)) {
                     chatContainer.removeChild(loadingMessageDiv);
                 }
-                // Display the final result or error message - Made by Musa Abiodun and H.A.P.E. Team
-                displayMessage('bot', finalContentText, fetchedSuccessfully ? 'bot' : 'error', true); // Ensure HTML formatting for results
+                displayMessage('bot', finalContentText, fetchedSuccessfully ? 'bot' : 'error', true);
             }
         }
 
@@ -1045,9 +1040,9 @@
                     );
                     commandHandled = true;
                 } else if (lowerCaseInput === "/technews") {
-                    // Tech news now uses GIFTEDTECH_AI_PRIMARY_ENDPOINT as primary, Gemini as secondary
+                    // Tech news now uses DAVIDCYRILTECH_AI_GEMINI_ENDPOINT as primary, Gemini as secondary
                     await fetchAPIContentWithFallback(
-                        { endpoint: GIFTEDTECH_AI_PRIMARY_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: 'q', parser: parseAiResponse },
+                        { endpoint: DAVIDCYRILTECH_AI_GEMINI_ENDPOINT, apiKey: null, queryParam: 'text', parser: parseAiResponse },
                         { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse }, // Gemini as fallback
                         "Getting the latest tech headlines from AI 📰",
                         "Summarize the top 5 latest technology news headlines and provide a very brief description for each." // Prompt for the AI
@@ -1129,9 +1124,9 @@
                 } else {
                     // Send to AI by default
                     try {
-                        // AI Queries now use GIFTEDTECH_AI_PRIMARY_ENDPOINT as primary, Gemini as secondary
+                        // AI Queries now use DAVIDCYRILTECH_AI_GEMINI_ENDPOINT as primary, Gemini as secondary
                         await fetchAPIContentWithFallback(
-                            { endpoint: GIFTEDTECH_AI_PRIMARY_ENDPOINT, apiKey: GIFTEDTECH_API_KEY, queryParam: 'q', parser: parseAiResponse },
+                            { endpoint: DAVIDCYRILTECH_AI_GEMINI_ENDPOINT, apiKey: null, queryParam: 'text', parser: parseAiResponse },
                             { endpoint: GEMINI_API_ENDPOINT, apiKey: GEMINI_API_KEY, queryParam: null, parser: parseAiResponse }, // Gemini as fallback
                             "Thinking... 🤔", 
                             userInputValue
@@ -1154,5 +1149,4 @@
     </script>
 </body>
 </html>
-
 
