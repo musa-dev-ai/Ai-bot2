@@ -1,9 +1,15 @@
 🤖 Switch 1.0 ⚡
 
 Your AI-Powered Conversational Companion!
-Welcome to Switch 1.0, a sleek, responsive web-based chatbot designed to bring a touch of the future to your daily interactions. Powered by external APIs, Switch 1.0 offers a diverse range of functionalities, from answering your questions to fetching a quick laugh, all within a clean, intuitive interface.
+
+Welcome to Switch 1.0, a sleek, responsive web-based chatbot designed to bring a touch of the future to your daily interactions.
+  Powered by external APIs, Switch 1.0 offers a diverse range of functionalities, from answering your questions to fetching a quick laugh, all within a clean, intuitive interface.
+  
 ✨ Features & Commands
-Switch 1.0 is more than just a pretty face! It's integrated with various external APIs to provide dynamic and engaging responses. Here's a rundown of what Switch 1.0 can do:
+
+Switch 1.0 is more than just a pretty face! It's integrated with various external APIs to provide dynamic and engaging responses. 
+
+  Here's a rundown of what Switch 1.0 can do:
  * 🧠 AI Assistant:
    Just type your questions directly! Our neural network is ready to provide insightful answers and information. This uses the David Cyril Tech AI endpoint and does not require an API key.
  * 😂 Joke Generator (/joke):
